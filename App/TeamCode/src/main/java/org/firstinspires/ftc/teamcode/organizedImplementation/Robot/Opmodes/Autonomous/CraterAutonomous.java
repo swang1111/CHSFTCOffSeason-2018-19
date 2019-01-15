@@ -1,52 +1,68 @@
 package org.firstinspires.ftc.teamcode.organizedImplementation.Robot.Opmodes.Autonomous;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PwmControl;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoControllerEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.util.Range;
+
+/*
+
+*Whenever code is updated, summarize what has been changed here*
+
+1/14/19 - created base for code
+
+ */
 
 @Autonomous (name = "Crater Autonomous", group = "Autonomous")
 //@Disabled
-public class CraterAutonomous extends LinearOpMode{
+public class CraterAutonomous extends LinearOpMode {
 
-    private DcMotor leftMotor;
-    private DcMotor rightMotor;
-
-    private DcMotor turningMotor;
-    private DcMotor extendingMotor;
-
-    private final double leftSpeed = 1.0;
-    private final double rightSpeed = 0.5;
+    // autonomous variables
 
     private ElapsedTime runtime = new ElapsedTime();
 
     public void runOpMode(){
-        leftMotor = hardwareMap.dcMotor.get("left_motor");
-        rightMotor = hardwareMap.dcMotor.get("right_motor");
 
-        turningMotor = hardwareMap.dcMotor.get("turning_motor");
-        extendingMotor = hardwareMap.dcMotor.get("extending_motor");
+        telemetry.addData("Status", "Initializing...");
+        telemetry.update();
+
+        // mapping
+
+        telemetry.addData("Status", "Mapping Complete");
+        telemetry.update();
+
+        // setting directions & initial positions
 
         waitForStart();
+        runtime.reset();
 
-        leftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        // start
+
+        /*
+
+        // example
+
+        rightMotor.setPower(rightSpeed);
+        leftMotor.setPower(leftSpeed);
+        while(opModeIsActive() && runtime.seconds() < 0.2){
+            telemetry.addData("Status", "forward unlatching movement", runtime.seconds());
+            telemetry.update();
+        }
+        rightMotor.setPower(0);
+        leftMotor.setPower(0);
+        sleep(500);
 
         runtime.reset();
 
-        // go straight from start to crater
-        leftMotor.setPower(leftSpeed);
-        rightMotor.setPower(rightSpeed);
-        //full speed ahead
-        //go go go go go
-        while(opModeIsActive() && runtime.seconds() < 2){
-            telemetry.addData("To Crater", "true", runtime.seconds());
-            telemetry.update();
-        }
-        leftMotor.setPower(0);
-        rightMotor.setPower(0);
-        telemetry.addData("Autonomous Finished", "true", runtime.seconds());
+         */
+
+        telemetry.addData("Status", "Autonomous Finished", runtime.seconds());
         telemetry.update();
     }
 }
