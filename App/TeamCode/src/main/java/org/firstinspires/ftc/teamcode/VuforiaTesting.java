@@ -43,6 +43,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.BasicOpMode_Iterative;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
@@ -83,10 +84,12 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 
 @TeleOp(name="Vuforia Phone Testing", group="DogeCV")
 //@Disabled
-public class VuforiaTesting extends OpMode
+public class VuforiaTesting extends BasicOpMode_Iterative
 {
 
     private ElapsedTime runtime = new ElapsedTime();
+    private ElapsedTime gyroRuntime = new ElapsedTime();
+
 
     BNO055IMU imu;
 
@@ -146,56 +149,56 @@ public class VuforiaTesting extends OpMode
         vuforia = new Dogeforia(parametersVuforia);
         vuforia.enableConvertFrameToBitmap();
 
-        VuforiaTrackables targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
-        VuforiaTrackable blueRover = targetsRoverRuckus.get(0);
-        blueRover.setName("Blue-Rover");
-        VuforiaTrackable redFootprint = targetsRoverRuckus.get(1);
-        redFootprint.setName("Red-Footprint");
-        VuforiaTrackable frontCraters = targetsRoverRuckus.get(2);
-        frontCraters.setName("Front-Craters");
-        VuforiaTrackable backSpace = targetsRoverRuckus.get(3);
-        backSpace.setName("Back-Space");
-
-        // For convenience, gather together all the trackable objects in one easily-iterable collection */
-
-        allTrackables.addAll(targetsRoverRuckus);
-
-        OpenGLMatrix blueRoverLocationOnField = OpenGLMatrix
-                .translation(0, mmFTCFieldWidth, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0));
-        blueRover.setLocation(blueRoverLocationOnField);
-
-        OpenGLMatrix redFootprintLocationOnField = OpenGLMatrix
-                .translation(0, -mmFTCFieldWidth, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 180));
-        redFootprint.setLocation(redFootprintLocationOnField);
-
-        OpenGLMatrix frontCratersLocationOnField = OpenGLMatrix
-                .translation(-mmFTCFieldWidth, 0, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90));
-        frontCraters.setLocation(frontCratersLocationOnField);
-
-        OpenGLMatrix backSpaceLocationOnField = OpenGLMatrix
-                .translation(mmFTCFieldWidth, 0, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90));
-        backSpace.setLocation(backSpaceLocationOnField);
-
-
-        final int CAMERA_FORWARD_DISPLACEMENT  = 110;   // eg: Camera is 110 mm in front of robot center
-        final int CAMERA_VERTICAL_DISPLACEMENT = 200;   // eg: Camera is 200 mm above ground
-        final int CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
-
-        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES,
-                        CAMERA_CHOICE == FRONT ? 90 : -90, 0, 0));
-
-        for (VuforiaTrackable trackable : allTrackables)
-        {
-            ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parametersVuforia.cameraDirection);
-        }
-
-        targetsRoverRuckus.activate();
+//        VuforiaTrackables targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
+//        VuforiaTrackable blueRover = targetsRoverRuckus.get(0);
+//        blueRover.setName("Blue-Rover");
+//        VuforiaTrackable redFootprint = targetsRoverRuckus.get(1);
+//        redFootprint.setName("Red-Footprint");
+//        VuforiaTrackable frontCraters = targetsRoverRuckus.get(2);
+//        frontCraters.setName("Front-Craters");
+//        VuforiaTrackable backSpace = targetsRoverRuckus.get(3);
+//        backSpace.setName("Back-Space");
+//
+//        // For convenience, gather together all the trackable objects in one easily-iterable collection */
+//
+//        allTrackables.addAll(targetsRoverRuckus);
+//
+//        OpenGLMatrix blueRoverLocationOnField = OpenGLMatrix
+//                .translation(0, mmFTCFieldWidth, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0));
+//        blueRover.setLocation(blueRoverLocationOnField);
+//
+//        OpenGLMatrix redFootprintLocationOnField = OpenGLMatrix
+//                .translation(0, -mmFTCFieldWidth, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 180));
+//        redFootprint.setLocation(redFootprintLocationOnField);
+//
+//        OpenGLMatrix frontCratersLocationOnField = OpenGLMatrix
+//                .translation(-mmFTCFieldWidth, 0, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90));
+//        frontCraters.setLocation(frontCratersLocationOnField);
+//
+//        OpenGLMatrix backSpaceLocationOnField = OpenGLMatrix
+//                .translation(mmFTCFieldWidth, 0, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90));
+//        backSpace.setLocation(backSpaceLocationOnField);
+//
+//
+//        final int CAMERA_FORWARD_DISPLACEMENT  = 110;   // eg: Camera is 110 mm in front of robot center
+//        final int CAMERA_VERTICAL_DISPLACEMENT = 200;   // eg: Camera is 200 mm above ground
+//        final int CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
+//
+//        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
+//                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES,
+//                        CAMERA_CHOICE == FRONT ? 90 : -90, 0, 0));
+//
+//        for (VuforiaTrackable trackable : allTrackables)
+//        {
+//            ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parametersVuforia.cameraDirection);
+//        }
+//
+//        targetsRoverRuckus.activate();
 
         detector = new GoldAlignDetector();
         detector.init(hardwareMap.appContext,CameraViewDisplay.getInstance(), 0, true);
@@ -208,12 +211,6 @@ public class VuforiaTesting extends OpMode
         vuforia.enableDogeCV();
         vuforia.showDebug();
         vuforia.start();
-
-        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
 
     }
 
@@ -236,6 +233,12 @@ public class VuforiaTesting extends OpMode
         }
         runtime.reset();
 
+
+        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
     }
 
     @Override
@@ -254,8 +257,8 @@ public class VuforiaTesting extends OpMode
             leftMotor.setPower(0);
             rightMotor.setPower(0);
 
-            while (detector.getXPosition() < 300 && detector.getXPosition() > 400) {
-                if (detector.getXPosition() > 350) {
+            while (detector.getXPosition() < 400 && detector.getXPosition() > 450) {
+                if (detector.getXPosition() > 425) {
                     leftMotor.setPower(0.1);
                     rightMotor.setPower(0.05);
                 } else {
@@ -267,6 +270,8 @@ public class VuforiaTesting extends OpMode
 
             leftMotor.setPower(0);
             rightMotor.setPower(0);
+
+            gyroTurn(0.2, -90);
 
             firstTime = false;
 
@@ -321,15 +326,20 @@ public class VuforiaTesting extends OpMode
     }
     public void gyroTurn (  double speed, double angle) {
 
+        gyroRuntime.reset();
+
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
         double initialPosition = angles.firstAngle;
 
         // keep looping while we are still active, and not on heading.
         while (!onHeading(speed, angle, P_TURN_COEFF, initialPosition)) {
+
             // Update telemetry & Allow time for other processes to run.
             telemetry.update();
         }
+
+
         if(angles.firstAngle > angle){
             //nothing
         }
@@ -344,6 +354,7 @@ public class VuforiaTesting extends OpMode
 
         // determine turn power based on +/- error
         error = getError(angle, initialPosition);
+
 
         if (Math.abs(error) <= HEADING_THRESHOLD) {
             steer = 0.0;
