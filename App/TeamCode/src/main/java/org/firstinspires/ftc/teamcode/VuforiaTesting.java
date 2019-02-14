@@ -88,7 +88,7 @@ public class VuforiaTesting extends BasicOpMode_Iterative
 {
 
     private ElapsedTime runtime = new ElapsedTime();
-    private ElapsedTime gyroRuntime = new ElapsedTime();
+    //private ElapsedTime gyroRuntime = new ElapsedTime();
 
 
     BNO055IMU imu;
@@ -247,8 +247,8 @@ public class VuforiaTesting extends BasicOpMode_Iterative
         if(firstTime) {
 
             while (!detector.isFound()) {
-                leftMotor.setPower(0.1);
-                rightMotor.setPower(0.05);
+                leftMotor.setPower(0.25);
+                rightMotor.setPower(0.125);
                 telemetry.addData("status:", detector.isFound());
                 telemetry.addData("X Position:", detector.getXPosition());
                 telemetry.addData("time: ", runtime.seconds());
@@ -257,21 +257,47 @@ public class VuforiaTesting extends BasicOpMode_Iterative
             leftMotor.setPower(0);
             rightMotor.setPower(0);
 
-            while (detector.getXPosition() < 400 && detector.getXPosition() > 450) {
-                if (detector.getXPosition() > 425) {
-                    leftMotor.setPower(0.1);
-                    rightMotor.setPower(0.05);
+            while (detector.getXPosition() < 500 && detector.getXPosition() > 550) {
+                if (detector.getXPosition() > 525) {
+                    leftMotor.setPower(0.2);
+                    rightMotor.setPower(0.1);
                 } else {
-                    leftMotor.setPower(-0.1);
-                    rightMotor.setPower(-0.05);
+                    leftMotor.setPower(-0.2);
+                    rightMotor.setPower(-0.1);
                 }
+                telemetry.addData("moving", "true");
+                telemetry.update();
             }
 
 
             leftMotor.setPower(0);
             rightMotor.setPower(0);
 
-            gyroTurn(0.2, -90);
+            gyroTurn(0.22, -90);
+
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
+            runtime.reset();
+
+            while(runtime.milliseconds() < 1000){
+                leftMotor.setPower(0.2);
+                rightMotor.setPower(0.2);
+            }
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
+            runtime.reset();
+            while(runtime.milliseconds() < 1000){
+                leftMotor.setPower(-0.2);
+                rightMotor.setPower(-0.2);
+            }
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
+            runtime.reset();
+            //
+            gyroTurn(0.22, 90); //crashes(?)
+            //
+            telemetry.addData("done", "true");
+            telemetry.update();
 
             firstTime = false;
 
@@ -326,7 +352,7 @@ public class VuforiaTesting extends BasicOpMode_Iterative
     }
     public void gyroTurn (  double speed, double angle) {
 
-        gyroRuntime.reset();
+        //gyroRuntime.reset();
 
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
@@ -340,9 +366,7 @@ public class VuforiaTesting extends BasicOpMode_Iterative
         }
 
 
-        if(angles.firstAngle > angle){
-            //nothing
-        }
+
     }
 
     boolean onHeading(double speed, double angle, double PCoeff, double initialPosition) {
