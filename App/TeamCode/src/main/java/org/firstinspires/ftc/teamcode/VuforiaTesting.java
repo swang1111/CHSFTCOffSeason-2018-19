@@ -88,7 +88,7 @@ public class VuforiaTesting extends BasicOpMode_Iterative
 {
 
     private ElapsedTime runtime = new ElapsedTime();
-    //private ElapsedTime gyroRuntime = new ElapsedTime();
+    private ElapsedTime gyroRuntime = new ElapsedTime();
 
 
     BNO055IMU imu;
@@ -352,7 +352,7 @@ public class VuforiaTesting extends BasicOpMode_Iterative
     }
     public void gyroTurn (  double speed, double angle) {
 
-        //gyroRuntime.reset();
+        gyroRuntime.reset();
 
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
@@ -380,13 +380,14 @@ public class VuforiaTesting extends BasicOpMode_Iterative
         error = getError(angle, initialPosition);
 
 
-        if (Math.abs(error) <= HEADING_THRESHOLD) {
+        if ((Math.abs(error) <= HEADING_THRESHOLD) ||
+                (Math.abs(error) <= 2 * gyroRuntime.time(TimeUnit.SECONDS) && gyroRuntime.time(TimeUnit.SECONDS) > 2)) {
             steer = 0.0;
             leftSpeed  = 0.0;
             rightSpeed = 0.0;
             onTarget = true;
-        }
-        else {
+
+        } else {
             steer = getSteer(error, PCoeff);
             rightSpeed  = speed * steer;
             leftSpeed   = -rightSpeed;
@@ -420,10 +421,10 @@ public class VuforiaTesting extends BasicOpMode_Iterative
 
     public double getSteer(double error, double PCoeff) {
         if(error * PCoeff < 0) {
-            return Range.clip(error * PCoeff, -0.5, -0.01);
+            return Range.clip(error * PCoeff, -0.5, -0.1);
         }
         else {
-            return Range.clip(error * PCoeff, 0.01, 0.5);
+            return Range.clip(error * PCoeff, 0.1, 0.5);
         }
     }
 
