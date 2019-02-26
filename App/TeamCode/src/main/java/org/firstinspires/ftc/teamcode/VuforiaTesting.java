@@ -37,6 +37,7 @@ import com.disnodeteam.dogecv.filters.LeviColorFilter;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -84,8 +85,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 
 @TeleOp(name="Vuforia Phone Testing", group="DogeCV")
 //@Disabled
-public class VuforiaTesting extends BasicOpMode_Iterative
-{
+public class VuforiaTesting extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
     private ElapsedTime gyroRuntime = new ElapsedTime();
@@ -98,9 +98,15 @@ public class VuforiaTesting extends BasicOpMode_Iterative
 
     private boolean firstTime = true;
 
-    private static final float mmPerInch        = 25.4f;
-    private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
-    private static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
+    private static final double COUNTS_PER_MOTOR_REV = 1120;
+    private static final double GEAR_RATIO = 1.5;
+    private static final double WHEEL_DIAMETER_INCHES = 3.54331;
+    private static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV) / (WHEEL_DIAMETER_INCHES * Math.PI * GEAR_RATIO);
+
+
+    private static final float mmPerInch = 25.4f;
+    private static final float mmFTCFieldWidth = (12 * 6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
+    private static final float mmTargetHeight = (6) * mmPerInch;          // the height of the center of the target image above the floor
 
     // Select which camera you want use.  The FRONT camera is the one on the same side as the screen.
     // Valid choices are:  BACK or FRONT
@@ -120,15 +126,14 @@ public class VuforiaTesting extends BasicOpMode_Iterative
     // State used for updating telemetry
     Orientation angles;
 
-    @Override
-    public void init() {
+    public void runOpMode() {
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
-        parameters.loggingEnabled      = true;
-        parameters.loggingTag          = "IMU";
+        parameters.loggingEnabled = true;
+        parameters.loggingTag = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -143,7 +148,6 @@ public class VuforiaTesting extends BasicOpMode_Iterative
 
         parametersVuforia.vuforiaLicenseKey = "AWbfTmn/////AAABmY0xuIe3C0RHvL3XuzRxyEmOT2OekXBSbqN2jot1si3OGBObwWadfitJR/D6Vk8VEBiW0HG2Q8UAEd0//OliF9aWCRmyDJ1mMqKCJZxpZemfT5ELFuWnJIZWUkKyjQfDNe2RIaAh0ermSxF4Bq77IDFirgggdYJoRIyi2Ys7Gl9lD/tSonV8OnldIN/Ove4/MtEBJTKHqjUEjC5U2khV+26AqkeqbxhFTNiIMl0LcmSSfugGhmWFGFtuPtp/+flPBRGoBO+tSl9P2sV4mSUBE/WrpHqB0Jd/tAmeNvbtgQXtZEGYc/9NszwRLVNl9k13vrBcgsiNxs2UY5xAvA4Wb6LN7Yu+tChwc+qBiVKAQe09\n";
         parametersVuforia.fillCameraMonitorViewParent = true;
-
 
 
         vuforia = new Dogeforia(parametersVuforia);
@@ -201,7 +205,7 @@ public class VuforiaTesting extends BasicOpMode_Iterative
 //        targetsRoverRuckus.activate();
 
         detector = new GoldAlignDetector();
-        detector.init(hardwareMap.appContext,CameraViewDisplay.getInstance(), 0, true);
+        detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance(), 0, true);
 
         detector.yellowFilter = new LeviColorFilter(LeviColorFilter.ColorPreset.YELLOW, 100);
         detector.useDefaults();
@@ -212,17 +216,8 @@ public class VuforiaTesting extends BasicOpMode_Iterative
         vuforia.showDebug();
         vuforia.start();
 
-    }
 
-    @Override
-    public void init_loop() {
-    }
-
-    /*
-     * Code to run ONCE when the driver hits PLAY
-     */
-    @Override
-    public void start() {
+        waitForStart();
 
         runtime.reset();
 
@@ -239,70 +234,69 @@ public class VuforiaTesting extends BasicOpMode_Iterative
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-    }
 
-    @Override
-    public void loop() {
+        while (opModeIsActive()) {
 
-        if(firstTime) {
+            if (firstTime) {
 
-            while (!detector.isFound()) {
-                leftMotor.setPower(0.25);
-                rightMotor.setPower(0.125);
-                telemetry.addData("status:", detector.isFound());
-                telemetry.addData("X Position:", detector.getXPosition());
-                telemetry.addData("time: ", runtime.seconds());
-                telemetry.update();
-            }
-            leftMotor.setPower(0);
-            rightMotor.setPower(0);
-
-            while (detector.getXPosition() < 500 && detector.getXPosition() > 550) {
-                if (detector.getXPosition() > 525) {
-                    leftMotor.setPower(0.2);
-                    rightMotor.setPower(0.1);
-                } else {
-                    leftMotor.setPower(-0.2);
-                    rightMotor.setPower(-0.1);
+                while (!detector.isFound()) {
+                    leftMotor.setPower(0.25);
+                    rightMotor.setPower(0.125);
+                    telemetry.addData("status:", detector.isFound());
+                    telemetry.addData("X Position:", detector.getXPosition());
+                    telemetry.addData("time: ", runtime.seconds());
+                    telemetry.update();
                 }
-                telemetry.addData("moving", "true");
+                leftMotor.setPower(0);
+                rightMotor.setPower(0);
+
+                while (detector.getXPosition() < 500 && detector.getXPosition() > 550) {
+                    if (detector.getXPosition() > 525) {
+                        leftMotor.setPower(0.2);
+                        rightMotor.setPower(0.1);
+                    } else {
+                        leftMotor.setPower(-0.2);
+                        rightMotor.setPower(-0.1);
+                    }
+                    telemetry.addData("moving", "true");
+                    telemetry.update();
+                }
+
+
+                leftMotor.setPower(0);
+                rightMotor.setPower(0);
+
+                gyroTurn(0.22, -90);
+
+                leftMotor.setPower(0);
+                rightMotor.setPower(0);
+                runtime.reset();
+
+                while (runtime.milliseconds() < 1111) {
+                    leftMotor.setPower(0.11);
+                    rightMotor.setPower(0.11);
+                }
+                leftMotor.setPower(0);
+                rightMotor.setPower(0);
+                runtime.reset();
+                while (runtime.milliseconds() < 1200) {
+                    leftMotor.setPower(-0.11);
+                    rightMotor.setPower(-0.11);
+                }
+                leftMotor.setPower(0);
+                rightMotor.setPower(0);
+                runtime.reset();
+                //
+                gyroTurn(0.22, 90); //crashes(?)
+                //
+                telemetry.addData("done", "true");
                 telemetry.update();
+
+                firstTime = false;
+
             }
-
-
-            leftMotor.setPower(0);
-            rightMotor.setPower(0);
-
-            gyroTurn(0.22, -90);
-
-            leftMotor.setPower(0);
-            rightMotor.setPower(0);
-            runtime.reset();
-
-            while(runtime.milliseconds() < 1000){
-                leftMotor.setPower(0.2);
-                rightMotor.setPower(0.2);
-            }
-            leftMotor.setPower(0);
-            rightMotor.setPower(0);
-            runtime.reset();
-            while(runtime.milliseconds() < 1000){
-                leftMotor.setPower(-0.2);
-                rightMotor.setPower(-0.2);
-            }
-            leftMotor.setPower(0);
-            rightMotor.setPower(0);
-            runtime.reset();
-            //
-            gyroTurn(0.22, 90); //crashes(?)
-            //
-            telemetry.addData("done", "true");
-            telemetry.update();
-
-            firstTime = false;
-
         }
-    }
+
         /*targetVisible = false;
         for (VuforiaTrackable trackable : allTrackables) {
             if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
@@ -342,34 +336,35 @@ public class VuforiaTesting extends BasicOpMode_Iterative
 
     }*/
 
-    /*
-     * Code to run ONCE after the driver hits STOP
-     */
-    @Override
-    public void stop() {
+        /*
+         * Code to run ONCE after the driver hits STOP
+         */
+
         vuforia.stop();
 
+
     }
-    public void gyroTurn (  double speed, double angle) {
 
-        gyroRuntime.reset();
+    public void gyroTurn (  double speed, double angle){
 
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            gyroRuntime.reset();
 
-        double initialPosition = angles.firstAngle;
+            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
-        // keep looping while we are still active, and not on heading.
-        while (!onHeading(speed, angle, P_TURN_COEFF, initialPosition)) {
+            double initialPosition = angles.firstAngle;
 
-            // Update telemetry & Allow time for other processes to run.
-            telemetry.update();
+            // keep looping while we are still active, and not on heading.
+            while (!onHeading(speed, angle, P_TURN_COEFF, initialPosition)) {
+
+                // Update telemetry & Allow time for other processes to run.
+                telemetry.update();
+            }
+
+
         }
 
 
-
-    }
-
-    boolean onHeading(double speed, double angle, double PCoeff, double initialPosition) {
+    public boolean onHeading(double speed, double angle, double PCoeff, double initialPosition) {
         double   error ;
         double   steer ;
         boolean  onTarget = false ;
