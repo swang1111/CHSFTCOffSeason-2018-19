@@ -17,6 +17,8 @@ public class Encoders extends LinearOpMode {
     private static final double WHEEL_DIAMETER_INCHES = 3.54331;
     private static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV) / (WHEEL_DIAMETER_INCHES * Math.PI * GEAR_RATIO);
 
+    private boolean there = false;
+
     public void runOpMode(){
         leftMotor = hardwareMap.dcMotor.get("left_motor");
         rightMotor = hardwareMap.dcMotor.get("right_motor");
@@ -30,7 +32,7 @@ public class Encoders extends LinearOpMode {
         leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while(opModeIsActive()) {
+        while(opModeIsActive() && !there) {
             telemetry.addData("Position:", leftMotor.getCurrentPosition());
             telemetry.update();
             leftMotor.setTargetPosition((int) (40 * COUNTS_PER_INCH));
@@ -38,6 +40,10 @@ public class Encoders extends LinearOpMode {
 
             leftMotor.setPower(0.2 * 2);
             rightMotor.setPower(0.2);
+            // testing
+            if (leftMotor.getCurrentPosition() >= leftMotor.getTargetPosition() || rightMotor.getCurrentPosition() >= rightMotor.getTargetPosition()){
+                there = true;
+            }
         }
 
     }
