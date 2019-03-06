@@ -32,18 +32,16 @@ public class Encoders extends LinearOpMode {
         leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while(opModeIsActive() && !there) {
+        while(opModeIsActive()) {
             telemetry.addData("Position:", leftMotor.getCurrentPosition());
             telemetry.update();
             leftMotor.setTargetPosition((int) (40 * COUNTS_PER_INCH));
-            rightMotor.setTargetPosition((int) (40 * COUNTS_PER_INCH));
+            rightMotor.setTargetPosition((int) (40 * COUNTS_PER_INCH / 2));
 
-            leftMotor.setPower(0.2 * 2);
-            rightMotor.setPower(0.2);
+            leftMotor.setPower(0.1);
+            rightMotor.setPower(0.05);
             // testing
-            if (leftMotor.getCurrentPosition() >= leftMotor.getTargetPosition() || rightMotor.getCurrentPosition() >= rightMotor.getTargetPosition()){
-                there = true;
-            }
+
         }
 
     }

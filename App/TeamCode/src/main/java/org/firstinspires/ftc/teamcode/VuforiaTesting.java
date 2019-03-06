@@ -102,6 +102,9 @@ public class VuforiaTesting extends LinearOpMode {
     private static final double GEAR_RATIO = 1.5;
     private static final double WHEEL_DIAMETER_INCHES = 3.54331;
     private static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV) / (WHEEL_DIAMETER_INCHES * Math.PI * GEAR_RATIO);
+    private static final double TILE_LENGTH_INCHES  = 23.5;
+    private static final double TILE_DIAGONAL_INCHES = 23.5 * Math.sqrt(2);
+    private static final double SAMPLING_DISTANCE = TILE_DIAGONAL_INCHES * COUNTS_PER_INCH * 1.5;
 
 
     private static final float mmPerInch = 25.4f;
@@ -111,6 +114,8 @@ public class VuforiaTesting extends LinearOpMode {
     // Select which camera you want use.  The FRONT camera is the one on the same side as the screen.
     // Valid choices are:  BACK or FRONT
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
+
+    private static double currentSamplingDistance = 0;
 
     private OpenGLMatrix lastLocation = null;
     boolean targetVisible;
@@ -239,6 +244,11 @@ public class VuforiaTesting extends LinearOpMode {
 
             if (firstTime) {
 
+                leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
                 while (!detector.isFound()) {
                     leftMotor.setPower(0.25);
                     rightMotor.setPower(0.125);
@@ -266,29 +276,51 @@ public class VuforiaTesting extends LinearOpMode {
                 leftMotor.setPower(0);
                 rightMotor.setPower(0);
 
+                currentSamplingDistance = leftMotor.getCurrentPosition();
+
                 gyroTurn(0.22, -90);
 
                 leftMotor.setPower(0);
                 rightMotor.setPower(0);
                 runtime.reset();
 
-                while (runtime.milliseconds() < 1111) {
-                    leftMotor.setPower(0.11);
-                    rightMotor.setPower(0.11);
-                }
-                leftMotor.setPower(0);
-                rightMotor.setPower(0);
-                runtime.reset();
-                while (runtime.milliseconds() < 1200) {
-                    leftMotor.setPower(-0.11);
-                    rightMotor.setPower(-0.11);
-                }
-                leftMotor.setPower(0);
-                rightMotor.setPower(0);
-                runtime.reset();
-                //
-                gyroTurn(0.22, 90); //crashes(?)
-                //
+                leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                leftMotor.setTargetPosition((int) (10 * COUNTS_PER_INCH));
+                rightMotor.setTargetPosition((int) (5 * COUNTS_PER_INCH));
+                leftMotor.setPower(0.1);
+                rightMotor.setPower(0.05);
+
+                sleep(500);
+
+                leftMotor.setTargetPosition(0);
+                rightMotor.setTargetPosition(0);
+                leftMotor.setPower(-0.1);
+                rightMotor.setPower(-0.05);
+
+                leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+                gyroTurn(0.22, 90);
+
+                leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                leftMotor.setTargetPosition((int) (SAMPLING_DISTANCE - currentSamplingDistance));
+                rightMotor.setTargetPosition((int) ((SAMPLING_DISTANCE - currentSamplingDistance)/2));
+
+                leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+                gyroTurn(0.22, -45);
+
                 telemetry.addData("done", "true");
                 telemetry.update();
 
