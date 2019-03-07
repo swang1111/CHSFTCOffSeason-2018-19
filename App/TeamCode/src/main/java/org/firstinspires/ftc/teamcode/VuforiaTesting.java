@@ -41,6 +41,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -96,6 +97,8 @@ public class VuforiaTesting extends LinearOpMode {
     private DcMotor leftMotor = null;
     private DcMotor rightMotor = null;
 
+    private Servo push_servo;
+
     private boolean firstTime = true;
 
     private static final double COUNTS_PER_MOTOR_REV = 1120;
@@ -148,6 +151,8 @@ public class VuforiaTesting extends LinearOpMode {
 
         leftMotor = hardwareMap.dcMotor.get("left_motor");
         rightMotor = hardwareMap.dcMotor.get("right_motor");
+
+        push_servo = hardwareMap.servo.get("push_servo");
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parametersVuforia = new VuforiaLocalizer.Parameters();
@@ -381,8 +386,8 @@ public class VuforiaTesting extends LinearOpMode {
                 leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-                leftMotor.setTargetPosition((int) (59.75 * COUNTS_PER_INCH));
-                rightMotor.setTargetPosition((int) (59.75 * COUNTS_PER_INCH/2));
+                leftMotor.setTargetPosition((int) (2.5 * TILE_LENGTH_INCHES * COUNTS_PER_INCH));
+                rightMotor.setTargetPosition((int) (2.5 * TILE_LENGTH_INCHES * COUNTS_PER_INCH/2));
 
                 leftMotor.setPower(0.1);
                 rightMotor.setPower(0.05);
@@ -402,6 +407,8 @@ public class VuforiaTesting extends LinearOpMode {
                 leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+                dropTeamMarker();
+                
                 telemetry.addData("done", "true");
                 telemetry.update();
 
@@ -534,6 +541,112 @@ public class VuforiaTesting extends LinearOpMode {
         else {
             return Range.clip(error * PCoeff, 0.1, 0.5);
         }
+    }
+    public void dropTeamMarker() {
+
+        runtime.reset();
+
+        push_servo.setPosition(0);
+
+        while(opModeIsActive() && runtime.milliseconds() < 500){
+            telemetry.addData("push out","true");
+            telemetry.update();
+        }
+
+        push_servo.setPosition(0.5);
+        runtime.reset();
+
+        push_servo.setPosition(1);
+
+        while(opModeIsActive() && runtime.milliseconds() < 100){
+            telemetry.addData("push out","true");
+            telemetry.update();
+        }
+
+        push_servo.setPosition(0.5);
+        runtime.reset();
+
+        push_servo.setPosition(0);
+
+        while(opModeIsActive() && runtime.milliseconds() < 100){
+            telemetry.addData("push out","true");
+            telemetry.update();
+        }
+
+        push_servo.setPosition(0.5);
+        runtime.reset();
+
+        push_servo.setPosition(1);
+
+        while(opModeIsActive() && runtime.milliseconds() < 100){
+            telemetry.addData("push out","true");
+            telemetry.update();
+        }
+
+        push_servo.setPosition(0.5);
+        runtime.reset();
+
+        push_servo.setPosition(0);
+
+        while(opModeIsActive() && runtime.milliseconds() < 100){
+            telemetry.addData("push out","true");
+            telemetry.update();
+        }
+
+        push_servo.setPosition(0.5);
+        runtime.reset();
+
+        push_servo.setPosition(1);
+
+        while(opModeIsActive() && runtime.milliseconds() < 100){
+            telemetry.addData("push out","true");
+            telemetry.update();
+        }
+
+        push_servo.setPosition(0.5);
+        runtime.reset();
+
+        push_servo.setPosition(0);
+
+        while(opModeIsActive() && runtime.milliseconds() < 100){
+            telemetry.addData("push out","true");
+            telemetry.update();
+        }
+
+        push_servo.setPosition(0.5);
+        runtime.reset();
+
+        push_servo.setPosition(1);
+
+        while(opModeIsActive() && runtime.milliseconds() < 100){
+            telemetry.addData("push out","true");
+            telemetry.update();
+        }
+
+        push_servo.setPosition(0.5);
+        runtime.reset();
+
+        push_servo.setPosition(0);
+
+        while(opModeIsActive() && runtime.milliseconds() < 100){
+            telemetry.addData("push out","true");
+            telemetry.update();
+        }
+
+        push_servo.setPosition(0.5);
+        runtime.reset();
+
+        push_servo.setPosition(1);
+
+        while(opModeIsActive() && runtime.milliseconds() < 600){
+            telemetry.addData("push out","true");
+            telemetry.update();
+        }
+
+        push_servo.setPosition(0.5);
+        runtime.reset();
+        telemetry.addData("Team Marker Released","true");
+        telemetry.update();
     }
 
 }
