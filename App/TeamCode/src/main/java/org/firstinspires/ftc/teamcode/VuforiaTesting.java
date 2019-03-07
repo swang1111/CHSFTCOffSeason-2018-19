@@ -116,6 +116,7 @@ public class VuforiaTesting extends LinearOpMode {
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
 
     private static double currentSamplingDistance = 0;
+    private static double errorBeforeDepot = 0;
 
     private OpenGLMatrix lastLocation = null;
     boolean targetVisible;
@@ -289,17 +290,28 @@ public class VuforiaTesting extends LinearOpMode {
                 leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-                leftMotor.setTargetPosition((int) (10 * COUNTS_PER_INCH));
-                rightMotor.setTargetPosition((int) (5 * COUNTS_PER_INCH));
+                leftMotor.setTargetPosition((int) (15 * COUNTS_PER_INCH));
+                rightMotor.setTargetPosition((int) (7.5 * COUNTS_PER_INCH));
                 leftMotor.setPower(0.1);
                 rightMotor.setPower(0.05);
 
                 sleep(500);
+                while(leftMotor.isBusy() && opModeIsActive()){
+                    telemetry.addData("Current Sampling Distance: ", currentSamplingDistance);
+                    telemetry.addData("Position: ", leftMotor.getCurrentPosition());
+                    telemetry.update();
+                }
 
                 leftMotor.setTargetPosition(0);
                 rightMotor.setTargetPosition(0);
                 leftMotor.setPower(-0.1);
                 rightMotor.setPower(-0.05);
+
+                while(leftMotor.isBusy() && opModeIsActive()){
+                    telemetry.addData("Current Sampling Distance: ", currentSamplingDistance);
+                    telemetry.addData("Position: ", leftMotor.getCurrentPosition());
+                    telemetry.update();
+                }
 
                 leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -316,10 +328,79 @@ public class VuforiaTesting extends LinearOpMode {
                 leftMotor.setTargetPosition((int) (SAMPLING_DISTANCE - currentSamplingDistance));
                 rightMotor.setTargetPosition((int) ((SAMPLING_DISTANCE - currentSamplingDistance)/2));
 
+                leftMotor.setPower(0.1);
+                rightMotor.setPower(0.05);
+
+                while(leftMotor.isBusy() && opModeIsActive()){
+                    telemetry.addData("Current Sampling Distance: ", currentSamplingDistance);
+                    telemetry.addData("Position: ", leftMotor.getCurrentPosition());
+                    telemetry.update();
+                }
+
+                leftMotor.setPower(0);
+                rightMotor.setPower(0);
+
                 leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
                 gyroTurn(0.22, -45);
+
+                leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                leftMotor.setTargetPosition((int) (10 * COUNTS_PER_INCH));
+                rightMotor.setTargetPosition((int) (10 * COUNTS_PER_INCH/2));
+
+                leftMotor.setPower(0.1);
+                rightMotor.setPower(0.05);
+
+                while(leftMotor.isBusy() && opModeIsActive()){
+                    telemetry.addData("Current Sampling Distance: ", currentSamplingDistance);
+                    telemetry.addData("Position: ", leftMotor.getCurrentPosition());
+                    telemetry.update();
+                }
+
+                leftMotor.setPower(0);
+                rightMotor.setPower(0);
+
+                leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+                sleep(1000);
+
+                angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+                errorBeforeDepot = angles.firstAngle + 45;
+
+                gyroTurn(0.22, 88 - errorBeforeDepot);
+
+                leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                leftMotor.setTargetPosition((int) (59.75 * COUNTS_PER_INCH));
+                rightMotor.setTargetPosition((int) (59.75 * COUNTS_PER_INCH/2));
+
+                leftMotor.setPower(0.1);
+                rightMotor.setPower(0.05);
+
+                while(leftMotor.isBusy() && opModeIsActive()){
+                    angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                    telemetry.addData("Gyro info: ", angles.firstAngle);
+                    telemetry.addData("Current Sampling Distance: ", currentSamplingDistance);
+                    telemetry.addData("Error Before Depot: ", errorBeforeDepot);
+                    telemetry.addData("Position: ", leftMotor.getCurrentPosition());
+                    telemetry.update();
+                }
+
+                leftMotor.setPower(0);
+                rightMotor.setPower(0);
+
+                leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
                 telemetry.addData("done", "true");
                 telemetry.update();
