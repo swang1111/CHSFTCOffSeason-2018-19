@@ -408,7 +408,45 @@ public class VuforiaTesting extends LinearOpMode {
                 rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
                 dropTeamMarker();
-                
+
+                leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                leftMotor.setTargetPosition((int) TILE_LENGTH_INCHES * 4 * -1);
+                rightMotor.setTargetPosition((int) TILE_LENGTH_INCHES * 4 * -1 / 2);
+
+                leftMotor.setPower(-0.2);
+                rightMotor.setPower(-0.1);
+                while(leftMotor.isBusy() && opModeIsActive()){
+                    angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                    telemetry.addData("Gyro info: ", angles.firstAngle);
+                    telemetry.addData("Current Sampling Distance: ", currentSamplingDistance);
+                    telemetry.addData("Error Before Depot: ", errorBeforeDepot);
+                    telemetry.addData("Position: ", leftMotor.getCurrentPosition());
+                    telemetry.update();
+                }
+
+                leftMotor.setPower(0);
+                rightMotor.setPower(0);
+
+                runtime.reset();
+
+                leftMotor.setPower(-1);
+                rightMotor.setPower(-0.5);
+
+                while(opModeIsActive() && runtime.milliseconds() < 1111){
+                    angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                    telemetry.addData("Gyro info: ", angles.firstAngle);
+                    telemetry.addData("Current Sampling Distance: ", currentSamplingDistance);
+                    telemetry.addData("Error Before Depot: ", errorBeforeDepot);
+                    telemetry.addData("Position: ", leftMotor.getCurrentPosition());
+                    telemetry.addData("running at full speed to crater...", "true");
+                    telemetry.update();
+
+                }
+                leftMotor.setPower(0);
+                rightMotor.setPower(0);
                 telemetry.addData("done", "true");
                 telemetry.update();
 
@@ -648,5 +686,6 @@ public class VuforiaTesting extends LinearOpMode {
         telemetry.addData("Team Marker Released","true");
         telemetry.update();
     }
+
 
 }
