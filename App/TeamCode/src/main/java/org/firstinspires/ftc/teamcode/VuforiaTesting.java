@@ -413,8 +413,8 @@ public class VuforiaTesting extends LinearOpMode {
                 rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                leftMotor.setTargetPosition((int) TILE_LENGTH_INCHES * 4 * -1);
-                rightMotor.setTargetPosition((int) TILE_LENGTH_INCHES * 4 * -1 / 2);
+                leftMotor.setTargetPosition((int) (TILE_LENGTH_INCHES * 4 * COUNTS_PER_INCH * -1));
+                rightMotor.setTargetPosition((int) (TILE_LENGTH_INCHES * 2 * COUNTS_PER_INCH * -1));
 
                 leftMotor.setPower(-0.2);
                 rightMotor.setPower(-0.1);
