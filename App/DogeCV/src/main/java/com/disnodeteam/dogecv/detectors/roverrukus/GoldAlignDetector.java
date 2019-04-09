@@ -72,7 +72,7 @@ public class GoldAlignDetector extends DogeCVDetector {
 
 
         //Preprocess the working Mat (blur it then apply a yellow filter)
-        Imgproc.GaussianBlur(workingMat,workingMat,new Size(5,5),0);
+        Imgproc.GaussianBlur(workingMat,workingMat,new Size(7,7),0);
         yellowFilter.process(workingMat.clone(),maskYellow);
 
         //Find contours of the yellow mask and draw them to the display mat for viewing
@@ -103,7 +103,7 @@ public class GoldAlignDetector extends DogeCVDetector {
         // Vars to calculate the alignment logic.
         double alignX    = (getAdjustedSize().width / 2) + alignPosOffset; // Center point in X Pixels
         double alignXMin = alignX - (alignSize / 2); // Min X Pos in pixels
-        double alignXMax = alignX +(alignSize / 2); // Max X pos in pixels
+        double alignXMax = alignX + (alignSize / 2); // Max X pos in pixels
         double xPos; // Current Gold X Pos
 
         if(bestRect != null){
