@@ -83,15 +83,15 @@ public class MechanumTeleOp extends LinearOpMode {
 
                     tr_motor.setPower(speed);
                     bl_motor.setPower(speed);
-                    tl_motor.setPower(speed * -rSpeed);
-                    br_motor.setPower(speed * -rSpeed);
+                    tl_motor.setPower(speed * rSpeed);
+                    br_motor.setPower(speed * rSpeed);
 
                 } else if (yPos >= 0 && xPos < 0) {
 
                     tl_motor.setPower(speed);
                     br_motor.setPower(speed);
-                    tr_motor.setPower(speed * -rSpeed);
-                    bl_motor.setPower(speed * -rSpeed);
+                    tr_motor.setPower(speed * rSpeed);
+                    bl_motor.setPower(speed * rSpeed);
 
                 } else if (yPos <= 0 && xPos > 0) {
 
@@ -228,7 +228,7 @@ public class MechanumTeleOp extends LinearOpMode {
             }else {
                 turnAngle = Math.atan2(turnY, turnX) - 90;
             }
-            
+
             double speedMultiplier = 0.1;
 
             while(turnAngle >= 360){
