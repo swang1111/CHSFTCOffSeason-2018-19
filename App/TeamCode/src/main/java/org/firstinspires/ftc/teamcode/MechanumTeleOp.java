@@ -69,7 +69,14 @@ public class MechanumTeleOp extends LinearOpMode {
             if (robotPerspective) {
 
                 tan = yPos / xPos;
-                rSpeed = (Math.sqrt(2) * (1 - tan)) / (2 * (1 + tan));
+
+                if(tan == -1) {
+                    rSpeed = 0;
+                }else {
+                    rSpeed = (tan -1)/(tan+1);
+                    // previous formula is rSpeed = (Math.sqrt(2) * (1 - tan)) / (2 * (1 + tan));
+                }
+
                 speed = Math.hypot(xPos, yPos);
 
                 if (yPos >= 0 && xPos > 0) {
@@ -126,12 +133,120 @@ public class MechanumTeleOp extends LinearOpMode {
                 telemetry.addData("Speed 1", tl_motor.getPower());
                 telemetry.addData("Speed 2", tr_motor.getPower());
                 telemetry.addData("Angle", Math.toDegrees(Math.atan2(yPos, xPos)));
+                telemetry.addData("Robot Perspective", robotPerspective);
+                telemetry.update();
 
             }
             else {
                 double angle = angles.firstAngle + Math.toDegrees(Math.atan2(yPos, xPos));
-//
+
+                while(angle >= 360){
+                    angle -= 360;
+                }
+                while(angle < 0) {
+                    angle += 360;
+                }
+
+                tan = Math.tan(Math.toRadians(angle));
+
+                if(tan == -1) {
+                    rSpeed = 0;
+                }else {
+                    rSpeed = (tan -1)/(tan+1);
+                    // previous formula is rSpeed = (Math.sqrt(2) * (1 - tan)) / (2 * (1 + tan));
+                }
+
+                speed = Math.hypot(xPos, yPos);
+
+                if (angle >=0 && angle < 90) {
+
+                    tr_motor.setPower(speed);
+                    bl_motor.setPower(speed);
+                    tl_motor.setPower(speed * rSpeed);
+                    br_motor.setPower(speed * rSpeed);
+
+                } else if (angle > 90 && angle <= 180) {
+
+                    tl_motor.setPower(speed);
+                    br_motor.setPower(speed);
+                    tr_motor.setPower(speed * rSpeed);
+                    bl_motor.setPower(speed * rSpeed);
+
+                } else if (angle > 270 && angle < 360) {
+
+                    tl_motor.setPower(-speed);
+                    br_motor.setPower(-speed);
+                    tr_motor.setPower(speed * rSpeed);
+                    bl_motor.setPower(speed * rSpeed);
+
+                } else if (angle > 180 && angle < 270) {
+
+                    tr_motor.setPower(-speed);
+                    bl_motor.setPower(-speed);
+                    tl_motor.setPower(speed * rSpeed);
+                    br_motor.setPower(speed * rSpeed);
+
+                } else if (angle == 90) {
+
+                    tl_motor.setPower(speed);
+                    br_motor.setPower(speed);
+                    tr_motor.setPower(speed);
+                    bl_motor.setPower(speed);
+
+                } else if (angle == 270) {
+
+                    tl_motor.setPower(-speed);
+                    br_motor.setPower(-speed);
+                    tr_motor.setPower(-speed);
+                    bl_motor.setPower(-speed);
+
+                } else {
+
+                    tl_motor.setPower(0);
+                    br_motor.setPower(0);
+                    tr_motor.setPower(0);
+                    bl_motor.setPower(0);
+
+                }
+
+                telemetry.addData("Speed 1", tl_motor.getPower());
+                telemetry.addData("Speed 2", tr_motor.getPower());
+                telemetry.addData("Angle", Math.toDegrees(Math.atan2(yPos, xPos)));
+                telemetry.addData("Robot Perspective", robotPerspective);
+                telemetry.update();
+
             }
+
+            //turn code is very sketchy
+
+            double turnX = gamepad1.left_stick_x;
+            double turnY = gamepad1.left_stick_y;
+            double turnAngle;
+
+            if(turnX == 0) {
+                turnAngle = 0;
+            }else {
+                turnAngle = Math.atan2(turnY, turnX) - 90;
+            }
+            
+            double speedMultiplier = 0.1;
+
+            while(turnAngle >= 360){
+                turnAngle -= 360;
+            }
+            while(turnAngle < 0) {
+                turnAngle += 360;
+            }
+            if(turnAngle > 180) {
+                turnAngle -= 360;
+            }
+            if(turnAngle < -180) {
+                turnAngle += 360;
+            }
+            tr_motor.setPower(tr_motor.getPower() + turnAngle * speedMultiplier/180);
+            br_motor.setPower(br_motor.getPower() + turnAngle * speedMultiplier/180);
+            tl_motor.setPower(tl_motor.getPower() + -turnAngle * speedMultiplier/180);
+            bl_motor.setPower(bl_motor.getPower() + -turnAngle * speedMultiplier/180);
         }
 
     }
