@@ -49,6 +49,15 @@ public class MechanumTeleOp extends LinearOpMode {
         tl_motor.setDirection(DcMotorSimple.Direction.REVERSE);
         bl_motor.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        tr_motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        tl_motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bl_motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        br_motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        tr_motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        tl_motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bl_motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        br_motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         boolean robotPerspective = true;
 
 
