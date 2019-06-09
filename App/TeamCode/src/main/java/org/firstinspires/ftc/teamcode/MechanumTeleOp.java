@@ -59,6 +59,7 @@ public class MechanumTeleOp extends LinearOpMode {
         br_motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         boolean robotPerspective = true;
+        boolean enableDpad = false;
 
 
         waitForStart();
@@ -90,6 +91,7 @@ public class MechanumTeleOp extends LinearOpMode {
 
                 if (yPos >= 0 && xPos > 0) {
 
+                    enableDpad = false;
                     tr_motor.setPower(speed);
                     bl_motor.setPower(speed);
                     tl_motor.setPower(speed * rSpeed);
@@ -97,6 +99,7 @@ public class MechanumTeleOp extends LinearOpMode {
 
                 } else if (yPos >= 0 && xPos < 0) {
 
+                    enableDpad = false;
                     tl_motor.setPower(speed);
                     br_motor.setPower(speed);
                     tr_motor.setPower(speed * rSpeed);
@@ -104,6 +107,7 @@ public class MechanumTeleOp extends LinearOpMode {
 
                 } else if (yPos <= 0 && xPos > 0) {
 
+                    enableDpad = false;
                     tl_motor.setPower(-speed);
                     br_motor.setPower(-speed);
                     tr_motor.setPower(speed * -rSpeed);
@@ -111,6 +115,7 @@ public class MechanumTeleOp extends LinearOpMode {
 
                 } else if (yPos <= 0 && xPos < 0) {
 
+                    enableDpad = false;
                     tr_motor.setPower(-speed);
                     bl_motor.setPower(-speed);
                     tl_motor.setPower(speed * -rSpeed);
@@ -118,6 +123,7 @@ public class MechanumTeleOp extends LinearOpMode {
 
                 } else if (yPos > 0 && xPos == 0) {
 
+                    enableDpad = false;
                     tl_motor.setPower(speed);
                     br_motor.setPower(speed);
                     tr_motor.setPower(speed);
@@ -125,6 +131,7 @@ public class MechanumTeleOp extends LinearOpMode {
 
                 } else if (yPos < 0 && xPos == 0) {
 
+                    enableDpad = false;
                     tl_motor.setPower(-speed);
                     br_motor.setPower(-speed);
                     tr_motor.setPower(-speed);
@@ -143,10 +150,11 @@ public class MechanumTeleOp extends LinearOpMode {
                 telemetry.addData("Speed 2", tr_motor.getPower());
                 telemetry.addData("Angle", Math.toDegrees(Math.atan2(yPos, xPos)));
                 telemetry.addData("Robot Perspective", robotPerspective);
-                telemetry.update();
+
 
             }
             else {
+                
                 double angle = angles.firstAngle + Math.toDegrees(Math.atan2(yPos, xPos));
 
                 while(angle >= 360){
@@ -169,6 +177,7 @@ public class MechanumTeleOp extends LinearOpMode {
 
                 if (angle >=0 && angle < 90) {
 
+                    enableDpad = false;
                     tr_motor.setPower(speed);
                     bl_motor.setPower(speed);
                     tl_motor.setPower(speed * rSpeed);
@@ -176,6 +185,7 @@ public class MechanumTeleOp extends LinearOpMode {
 
                 } else if (angle > 90 && angle <= 180) {
 
+                    enableDpad = false;
                     tl_motor.setPower(speed);
                     br_motor.setPower(speed);
                     tr_motor.setPower(speed * rSpeed);
@@ -183,6 +193,7 @@ public class MechanumTeleOp extends LinearOpMode {
 
                 } else if (angle > 270 && angle < 360) {
 
+                    enableDpad = false;
                     tl_motor.setPower(-speed);
                     br_motor.setPower(-speed);
                     tr_motor.setPower(speed * -rSpeed);
@@ -190,6 +201,7 @@ public class MechanumTeleOp extends LinearOpMode {
 
                 } else if (angle > 180 && angle < 270) {
 
+                    enableDpad = false;
                     tr_motor.setPower(-speed);
                     bl_motor.setPower(-speed);
                     tl_motor.setPower(speed * -rSpeed);
@@ -197,6 +209,7 @@ public class MechanumTeleOp extends LinearOpMode {
 
                 } else if (angle == 90) {
 
+                    enableDpad = false;
                     tl_motor.setPower(speed);
                     br_motor.setPower(speed);
                     tr_motor.setPower(speed);
@@ -204,6 +217,7 @@ public class MechanumTeleOp extends LinearOpMode {
 
                 } else if (angle == 270) {
 
+                    enableDpad = false;
                     tl_motor.setPower(-speed);
                     br_motor.setPower(-speed);
                     tr_motor.setPower(-speed);
@@ -221,8 +235,8 @@ public class MechanumTeleOp extends LinearOpMode {
                 telemetry.addData("Speed 1", tl_motor.getPower());
                 telemetry.addData("Speed 2", tr_motor.getPower());
                 telemetry.addData("Angle", Math.toDegrees(Math.atan2(yPos, xPos)));
-                telemetry.addData("Robot Perspective", robotPerspective);
-                telemetry.update();
+                telemetry.addData("Robot Perspective (gamepad1.y)", robotPerspective);
+
 
             }
 
@@ -258,11 +272,49 @@ public class MechanumTeleOp extends LinearOpMode {
             }
 
             if(isTurning) {
+                enableDpad = false;
                 tr_motor.setPower(tr_motor.getPower() + turnAngle * speedMultiplier/180);
                 br_motor.setPower(br_motor.getPower() + turnAngle * speedMultiplier/180);
                 tl_motor.setPower(tl_motor.getPower() + -turnAngle * speedMultiplier/180);
                 bl_motor.setPower(bl_motor.getPower() + -turnAngle * speedMultiplier/180);
             }
+
+            if(gamepad1.x) enableDpad = !enableDpad;
+
+            if(enableDpad) {
+                while(gamepad1.dpad_up) {
+                    tr_motor.setPower(1);
+                    tl_motor.setPower(1);
+                    bl_motor.setPower(1);
+                    br_motor.setPower(1);
+                }
+                while(gamepad1.dpad_down) {
+                    tr_motor.setPower(-1);
+                    tl_motor.setPower(-1);
+                    bl_motor.setPower(-1);
+                    br_motor.setPower(-1);
+                }
+                while(gamepad1.dpad_right) {
+                    tr_motor.setPower(1);
+                    tl_motor.setPower(-1);
+                    bl_motor.setPower(1);
+                    br_motor.setPower(-1);
+                }
+                while(gamepad1.dpad_left) {
+                    tr_motor.setPower(-1);
+                    tl_motor.setPower(1);
+                    bl_motor.setPower(-1);
+                    br_motor.setPower(1);
+                }
+                tr_motor.setPower(0);
+                tl_motor.setPower(0);
+                bl_motor.setPower(0);
+                br_motor.setPower(0);
+            }
+
+            telemetry.addData("Turn Angle:", turnAngle);
+            telemetry.addData("D-pad Enabled (gamepad1.x):", enableDpad);
+            telemetry.update();
         }
 
     }
