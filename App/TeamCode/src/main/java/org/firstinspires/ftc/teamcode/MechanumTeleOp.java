@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@TeleOp (name = "Mechanum TeleOp", group = "TeleOp")
+@TeleOp (name = "Mechanum TeleOp2", group = "TeleOp")
 //@Disabled
 public class MechanumTeleOp extends LinearOpMode {
 
@@ -154,7 +154,7 @@ public class MechanumTeleOp extends LinearOpMode {
 
             }
             else {
-                
+
                 double angle = angles.firstAngle + Math.toDegrees(Math.atan2(yPos, xPos));
 
                 while(angle >= 360){
