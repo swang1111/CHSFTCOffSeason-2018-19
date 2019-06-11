@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@TeleOp (name = "Mechanum TeleOp2", group = "TeleOp")
+@TeleOp (name = "Mechanum TeleOp", group = "TeleOp")
 //@Disabled
 public class MechanumTeleOp extends LinearOpMode {
 
@@ -60,6 +60,7 @@ public class MechanumTeleOp extends LinearOpMode {
 
         boolean robotPerspective = true;
         boolean enableDpad = false;
+        boolean isTurning = false;
 
 
         waitForStart();
@@ -72,9 +73,10 @@ public class MechanumTeleOp extends LinearOpMode {
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             double xPos = gamepad1.right_stick_x;
             double yPos = gamepad1.right_stick_y;
-            double tan;
+            double tan = 0;
             double rSpeed;
             double speed;
+            double angle = 0;
 
             if (robotPerspective) {
 
@@ -138,12 +140,12 @@ public class MechanumTeleOp extends LinearOpMode {
                     bl_motor.setPower(-speed);
 
                 } else {
-
-                    tl_motor.setPower(0);
-                    br_motor.setPower(0);
-                    tr_motor.setPower(0);
-                    bl_motor.setPower(0);
-
+                    if(!isTurning) {
+                        tl_motor.setPower(0);
+                        br_motor.setPower(0);
+                        tr_motor.setPower(0);
+                        bl_motor.setPower(0);
+                    }
                 }
 
                 telemetry.addData("Speed 1", tl_motor.getPower());
@@ -154,87 +156,90 @@ public class MechanumTeleOp extends LinearOpMode {
 
             }
             else {
+                if(xPos != 0 && yPos != 0) {
+                    angle = angles.firstAngle + Math.toDegrees(Math.atan2(yPos, xPos));
 
-                double angle = angles.firstAngle + Math.toDegrees(Math.atan2(yPos, xPos));
+                    while (angle >= 360) {
+                        angle -= 360;
+                    }
+                    while (angle < 0) {
+                        angle += 360;
+                    }
 
-                while(angle >= 360){
-                    angle -= 360;
+                    tan = Math.tan(Math.toRadians(angle));
+
+                    if (tan == -1) {
+                        rSpeed = 0;
+                    } else {
+                        rSpeed = (tan - 1) / (tan + 1);
+                        // previous formula is rSpeed = (Math.sqrt(2) * (1 - tan)) / (2 * (1 + tan));
+                    }
+
+                    speed = Math.hypot(xPos, yPos);
+
+                    if (angle >= 0 && angle < 90) {
+
+                        enableDpad = false;
+                        tr_motor.setPower(speed);
+                        bl_motor.setPower(speed);
+                        tl_motor.setPower(speed * rSpeed);
+                        br_motor.setPower(speed * rSpeed);
+
+                    } else if (angle > 90 && angle <= 180) {
+
+                        enableDpad = false;
+                        tl_motor.setPower(speed);
+                        br_motor.setPower(speed);
+                        tr_motor.setPower(speed * rSpeed);
+                        bl_motor.setPower(speed * rSpeed);
+
+                    } else if (angle > 270 && angle < 360) {
+
+                        enableDpad = false;
+                        tl_motor.setPower(-speed);
+                        br_motor.setPower(-speed);
+                        tr_motor.setPower(speed * -rSpeed);
+                        bl_motor.setPower(speed * -rSpeed);
+
+                    } else if (angle > 180 && angle < 270) {
+
+                        enableDpad = false;
+                        tr_motor.setPower(-speed);
+                        bl_motor.setPower(-speed);
+                        tl_motor.setPower(speed * -rSpeed);
+                        br_motor.setPower(speed * -rSpeed);
+
+                    } else if (angle == 90) {
+
+                        enableDpad = false;
+                        tl_motor.setPower(speed);
+                        br_motor.setPower(speed);
+                        tr_motor.setPower(speed);
+                        bl_motor.setPower(speed);
+
+                    } else if (angle == 270) {
+
+                        enableDpad = false;
+                        tl_motor.setPower(-speed);
+                        br_motor.setPower(-speed);
+                        tr_motor.setPower(-speed);
+                        bl_motor.setPower(-speed);
+
+                    } else {
+
+                        if (!isTurning) {
+                            tl_motor.setPower(0);
+                            br_motor.setPower(0);
+                            tr_motor.setPower(0);
+                            bl_motor.setPower(0);
+                        }
+
+                    }
                 }
-                while(angle < 0) {
-                    angle += 360;
-                }
-
-                tan = Math.tan(Math.toRadians(angle));
-
-                if(tan == -1) {
-                    rSpeed = 0;
-                }else {
-                    rSpeed = (tan -1)/(tan+1);
-                    // previous formula is rSpeed = (Math.sqrt(2) * (1 - tan)) / (2 * (1 + tan));
-                }
-
-                speed = Math.hypot(xPos, yPos);
-
-                if (angle >=0 && angle < 90) {
-
-                    enableDpad = false;
-                    tr_motor.setPower(speed);
-                    bl_motor.setPower(speed);
-                    tl_motor.setPower(speed * rSpeed);
-                    br_motor.setPower(speed * rSpeed);
-
-                } else if (angle > 90 && angle <= 180) {
-
-                    enableDpad = false;
-                    tl_motor.setPower(speed);
-                    br_motor.setPower(speed);
-                    tr_motor.setPower(speed * rSpeed);
-                    bl_motor.setPower(speed * rSpeed);
-
-                } else if (angle > 270 && angle < 360) {
-
-                    enableDpad = false;
-                    tl_motor.setPower(-speed);
-                    br_motor.setPower(-speed);
-                    tr_motor.setPower(speed * -rSpeed);
-                    bl_motor.setPower(speed * -rSpeed);
-
-                } else if (angle > 180 && angle < 270) {
-
-                    enableDpad = false;
-                    tr_motor.setPower(-speed);
-                    bl_motor.setPower(-speed);
-                    tl_motor.setPower(speed * -rSpeed);
-                    br_motor.setPower(speed * -rSpeed);
-
-                } else if (angle == 90) {
-
-                    enableDpad = false;
-                    tl_motor.setPower(speed);
-                    br_motor.setPower(speed);
-                    tr_motor.setPower(speed);
-                    bl_motor.setPower(speed);
-
-                } else if (angle == 270) {
-
-                    enableDpad = false;
-                    tl_motor.setPower(-speed);
-                    br_motor.setPower(-speed);
-                    tr_motor.setPower(-speed);
-                    bl_motor.setPower(-speed);
-
-                } else {
-
-                    tl_motor.setPower(0);
-                    br_motor.setPower(0);
-                    tr_motor.setPower(0);
-                    bl_motor.setPower(0);
-
-                }
-
                 telemetry.addData("Speed 1", tl_motor.getPower());
                 telemetry.addData("Speed 2", tr_motor.getPower());
-                telemetry.addData("Angle", Math.toDegrees(Math.atan2(yPos, xPos)));
+                telemetry.addData("Angle", angle);
+                telemetry.addData("Tan", tan);
                 telemetry.addData("Robot Perspective (gamepad1.y)", robotPerspective);
 
 
@@ -245,39 +250,25 @@ public class MechanumTeleOp extends LinearOpMode {
             double turnX = gamepad1.left_stick_x;
             double turnY = gamepad1.left_stick_y;
             double turnAngle;
-            boolean isTurning = false;
 
-            if(turnX == 0) {
-                turnAngle = 0;
-                isTurning = false;
 
-            }else {
+
+            turnAngle = gamepad1.left_stick_x;
+
+            if(turnAngle != 0) {
                 isTurning = true;
-                turnAngle = Math.atan2(turnY, turnX) - 90;
+            }else {
+                isTurning = false;
             }
 
-            double speedMultiplier = 0.25;
+            double speedMultiplier = 1;
 
-            while(turnAngle >= 360){
-                turnAngle -= 360;
-            }
-            while(turnAngle < 0) {
-                turnAngle += 360;
-            }
-            if(turnAngle > 180) {
-                turnAngle -= 360;
-            }
-            if(turnAngle < -180) {
-                turnAngle += 360;
-            }
 
-            if(isTurning) {
-                enableDpad = false;
-                tr_motor.setPower(tr_motor.getPower() + turnAngle * speedMultiplier/180);
-                br_motor.setPower(br_motor.getPower() + turnAngle * speedMultiplier/180);
-                tl_motor.setPower(tl_motor.getPower() + -turnAngle * speedMultiplier/180);
-                bl_motor.setPower(bl_motor.getPower() + -turnAngle * speedMultiplier/180);
-            }
+            tr_motor.setPower(tr_motor.getPower() + turnAngle);
+            br_motor.setPower(br_motor.getPower() + turnAngle);
+            tl_motor.setPower(tl_motor.getPower() -turnAngle);
+            bl_motor.setPower(bl_motor.getPower() -turnAngle);
+
 
             if(gamepad1.x) enableDpad = !enableDpad;
 
