@@ -235,6 +235,11 @@ public class MechanumTeleOp extends LinearOpMode {
                         }
 
                     }
+                }else{
+                    tl_motor.setPower(0);
+                    br_motor.setPower(0);
+                    tr_motor.setPower(0);
+                    bl_motor.setPower(0);
                 }
                 telemetry.addData("Speed 1", tl_motor.getPower());
                 telemetry.addData("Speed 2", tr_motor.getPower());
@@ -305,6 +310,8 @@ public class MechanumTeleOp extends LinearOpMode {
 
             telemetry.addData("Turn Angle:", turnAngle);
             telemetry.addData("D-pad Enabled (gamepad1.x):", enableDpad);
+            telemetry.addData("Right Stick X: ", gamepad1.right_stick_x);
+            telemetry.addData("Right Stick Y: ", gamepad1.right_stick_y);
             telemetry.update();
         }
 
