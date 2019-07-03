@@ -46,8 +46,8 @@ public class MechanumTeleOp extends LinearOpMode {
         bl_motor = hardwareMap.dcMotor.get("bl_motor");
         br_motor = hardwareMap.dcMotor.get("br_motor");
 
-        tl_motor.setDirection(DcMotorSimple.Direction.REVERSE);
-        bl_motor.setDirection(DcMotorSimple.Direction.REVERSE);
+        tr_motor.setDirection(DcMotorSimple.Direction.REVERSE);
+        br_motor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         tr_motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         tl_motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -61,6 +61,7 @@ public class MechanumTeleOp extends LinearOpMode {
         boolean robotPerspective = true;
         boolean enableDpad = false;
         boolean isTurning = false;
+        double gyroAngle = 0;
 
 
         waitForStart();
@@ -71,8 +72,8 @@ public class MechanumTeleOp extends LinearOpMode {
 
 
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            double xPos = gamepad1.right_stick_x;
-            double yPos = gamepad1.right_stick_y;
+            double xPos = -gamepad1.right_stick_x;
+            double yPos = -gamepad1.right_stick_y;
             double tan = 0;
             double rSpeed;
             double speed;
@@ -148,34 +149,39 @@ public class MechanumTeleOp extends LinearOpMode {
                     }
                 }
 
-                telemetry.addData("Speed 1", tl_motor.getPower());
-                telemetry.addData("Speed 2", tr_motor.getPower());
+                telemetry.addData("Speed 1", speed);
+                telemetry.addData("Speed 2", rSpeed);
                 telemetry.addData("Angle", Math.toDegrees(Math.atan2(yPos, xPos)));
                 telemetry.addData("Robot Perspective", robotPerspective);
 
 
             }
             else {
-                if(xPos != 0 && yPos != 0) {
-                    angle = angles.firstAngle + Math.toDegrees(Math.atan2(yPos, xPos));
+                gyroAngle = angles.firstAngle;
+                angle = gyroAngle + Math.toDegrees(Math.atan2(yPos, xPos));
 
-                    while (angle >= 360) {
-                        angle -= 360;
-                    }
-                    while (angle < 0) {
-                        angle += 360;
-                    }
+                while (angle >= 360) {
+                    angle -= 360;
+                }
+                while (angle < 0) {
+                    angle += 360;
+                }
 
-                    tan = Math.tan(Math.toRadians(angle));
+                tan = Math.tan(Math.toRadians(angle));
 
-                    if (tan == -1) {
-                        rSpeed = 0;
-                    } else {
-                        rSpeed = (tan - 1) / (tan + 1);
-                        // previous formula is rSpeed = (Math.sqrt(2) * (1 - tan)) / (2 * (1 + tan));
-                    }
+                if (tan == -1) {
+                    rSpeed = 0;
+                } else {
+                    rSpeed = (tan - 1) / (tan + 1);
+                    // previous formula is rSpeed = (Math.sqrt(2) * (1 - tan)) / (2 * (1 + tan));
+                }
 
-                    speed = Math.hypot(xPos, yPos);
+                speed = Math.hypot(xPos, yPos);
+
+                //not running through this if-statement when 0, 90, 270, 360
+                if((xPos != 0) && (yPos != 0)) {
+
+                    telemetry.addLine("hi");
 
                     if (angle >= 0 && angle < 90) {
 
@@ -234,16 +240,19 @@ public class MechanumTeleOp extends LinearOpMode {
                             bl_motor.setPower(0);
                         }
 
-                    }
+                    }//
                 }else{
-                    tl_motor.setPower(0);
-                    br_motor.setPower(0);
-                    tr_motor.setPower(0);
-                    bl_motor.setPower(0);
+                    if (!isTurning) {
+                        tl_motor.setPower(0);
+                        br_motor.setPower(0);
+                        tr_motor.setPower(0);
+                        bl_motor.setPower(0);
+                    }
                 }
-                telemetry.addData("Speed 1", tl_motor.getPower());
-                telemetry.addData("Speed 2", tr_motor.getPower());
+                telemetry.addData("Speed 1", speed);
+                telemetry.addData("Speed 2", rSpeed);
                 telemetry.addData("Angle", angle);
+                telemetry.addData("Gyro angle:", gyroAngle);
                 telemetry.addData("Tan", tan);
                 telemetry.addData("Robot Perspective (gamepad1.y)", robotPerspective);
 
@@ -266,13 +275,12 @@ public class MechanumTeleOp extends LinearOpMode {
                 isTurning = false;
             }
 
-            double speedMultiplier = 1;
-
 
             tr_motor.setPower(tr_motor.getPower() + turnAngle);
             br_motor.setPower(br_motor.getPower() + turnAngle);
-            tl_motor.setPower(tl_motor.getPower() -turnAngle);
-            bl_motor.setPower(bl_motor.getPower() -turnAngle);
+            tl_motor.setPower(tl_motor.getPower() - turnAngle);
+            bl_motor.setPower(bl_motor.getPower() - turnAngle);
+
 
 
             if(gamepad1.x) enableDpad = !enableDpad;
