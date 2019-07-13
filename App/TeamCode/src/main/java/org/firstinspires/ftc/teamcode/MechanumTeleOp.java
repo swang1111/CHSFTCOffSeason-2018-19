@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@TeleOp (name = "Mechanum TeleOp", group = "TeleOp")
+@TeleOp (name = "Mechanum TeleOp2", group = "TeleOp")
 //@Disabled
 public class MechanumTeleOp extends LinearOpMode {
 
@@ -157,27 +157,28 @@ public class MechanumTeleOp extends LinearOpMode {
 
             }
             else {
+                telemetry.addLine("1");
                 gyroAngle = angles.firstAngle;
                 angle = gyroAngle + Math.toDegrees(Math.atan2(yPos, xPos));
-
+                telemetry.addLine("2");
                 while (angle >= 360) {
                     angle -= 360;
                 }
                 while (angle < 0) {
                     angle += 360;
                 }
-
+                telemetry.addLine("3");
                 tan = Math.tan(Math.toRadians(angle));
-
+                telemetry.addLine("4");
                 if (tan == -1) {
                     rSpeed = 0;
                 } else {
                     rSpeed = (tan - 1) / (tan + 1);
                     // previous formula is rSpeed = (Math.sqrt(2) * (1 - tan)) / (2 * (1 + tan));
                 }
-
+                telemetry.addLine("5");
                 speed = Math.hypot(xPos, yPos);
-
+                telemetry.addLine("6");
                 //not running through this if-statement when 0, 90, 270, 360
                 if((xPos != 0) && (yPos != 0)) {
 
