@@ -189,10 +189,10 @@ public class MechanumTeleOp extends LinearOpMode {
                     if (angle >= 0 && angle < 90) {
 
                         enableDpad = false;
-                        tr_motor.setPower(speed);
-                        bl_motor.setPower(speed);
-                        tl_motor.setPower(initialSpeed * rSpeed);
-                        br_motor.setPower(initialSpeed * rSpeed);
+                        tl_motor.setPower(speed);
+                        br_motor.setPower(speed);
+                        tr_motor.setPower(initialSpeed * rSpeed);
+                        bl_motor.setPower(initialSpeed * rSpeed);
 
                     } else if (angle > 90 && angle <= 180) {
 
@@ -213,10 +213,10 @@ public class MechanumTeleOp extends LinearOpMode {
                     } else if (angle > 180 && angle < 270) {
 
                         enableDpad = false;
-                        tr_motor.setPower(-speed);
-                        bl_motor.setPower(-speed);
-                        tl_motor.setPower(initialSpeed * -rSpeed);
-                        br_motor.setPower(initialSpeed * -rSpeed);
+                        tl_motor.setPower(-speed);
+                        br_motor.setPower(-speed);
+                        tr_motor.setPower(initialSpeed * -rSpeed);
+                        bl_motor.setPower(initialSpeed * -rSpeed);
 
                     } else if (angle == 90) {
 
