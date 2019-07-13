@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@TeleOp (name = "Mechanum TeleOp2", group = "TeleOp")
+@TeleOp (name = "Mechanum TeleOp", group = "TeleOp") // go organize it
 //@Disabled
 public class MechanumTeleOp extends LinearOpMode {
 
@@ -86,7 +86,7 @@ public class MechanumTeleOp extends LinearOpMode {
                 if(tan == -1) {
                     rSpeed = 0;
                 }else {
-                    rSpeed = (tan -1)/(tan+1);
+                    rSpeed = (tan - 1) / (tan + 1);
                     // previous formula is rSpeed = (Math.sqrt(2) * (1 - tan)) / (2 * (1 + tan));
                 }
 
@@ -157,30 +157,32 @@ public class MechanumTeleOp extends LinearOpMode {
 
             }
             else {
-                telemetry.addLine("1");
                 gyroAngle = angles.firstAngle;
                 angle = gyroAngle + Math.toDegrees(Math.atan2(yPos, xPos));
-                telemetry.addLine("2");
                 while (angle >= 360) {
                     angle -= 360;
                 }
                 while (angle < 0) {
                     angle += 360;
                 }
-                telemetry.addLine("3");
                 tan = Math.tan(Math.toRadians(angle));
-                telemetry.addLine("4");
                 if (tan == -1) {
                     rSpeed = 0;
                 } else {
                     rSpeed = (tan - 1) / (tan + 1);
-                    // previous formula is rSpeed = (Math.sqrt(2) * (1 - tan)) / (2 * (1 + tan));
                 }
-                telemetry.addLine("5");
+
                 speed = Math.hypot(xPos, yPos);
-                telemetry.addLine("6");
-                //not running through this if-statement when 0, 90, 270, 360
-                if((xPos != 0) && (yPos != 0)) {
+
+                double initialSpeed = speed;
+
+                if((speed * rSpeed > 1) || (speed * rSpeed < -1)) {
+                    telemetry.addLine("1");
+                    speed /= Math.abs(initialSpeed * rSpeed);
+                    rSpeed /= Math.abs(initialSpeed * rSpeed);
+                }
+
+                if((xPos != 0) || (yPos != 0)) {
 
                     telemetry.addLine("hi");
 
@@ -189,32 +191,32 @@ public class MechanumTeleOp extends LinearOpMode {
                         enableDpad = false;
                         tr_motor.setPower(speed);
                         bl_motor.setPower(speed);
-                        tl_motor.setPower(speed * rSpeed);
-                        br_motor.setPower(speed * rSpeed);
+                        tl_motor.setPower(initialSpeed * rSpeed);
+                        br_motor.setPower(initialSpeed * rSpeed);
 
                     } else if (angle > 90 && angle <= 180) {
 
                         enableDpad = false;
                         tl_motor.setPower(speed);
                         br_motor.setPower(speed);
-                        tr_motor.setPower(speed * rSpeed);
-                        bl_motor.setPower(speed * rSpeed);
+                        tr_motor.setPower(initialSpeed * rSpeed);
+                        bl_motor.setPower(initialSpeed * rSpeed);
 
                     } else if (angle > 270 && angle < 360) {
 
                         enableDpad = false;
                         tl_motor.setPower(-speed);
                         br_motor.setPower(-speed);
-                        tr_motor.setPower(speed * -rSpeed);
-                        bl_motor.setPower(speed * -rSpeed);
+                        tr_motor.setPower(initialSpeed * -rSpeed);
+                        bl_motor.setPower(initialSpeed * -rSpeed);
 
                     } else if (angle > 180 && angle < 270) {
 
                         enableDpad = false;
                         tr_motor.setPower(-speed);
                         bl_motor.setPower(-speed);
-                        tl_motor.setPower(speed * -rSpeed);
-                        br_motor.setPower(speed * -rSpeed);
+                        tl_motor.setPower(initialSpeed * -rSpeed);
+                        br_motor.setPower(initialSpeed * -rSpeed);
 
                     } else if (angle == 90) {
 
@@ -277,16 +279,19 @@ public class MechanumTeleOp extends LinearOpMode {
             }
 
 
-            tr_motor.setPower(tr_motor.getPower() + turnAngle);
-            br_motor.setPower(br_motor.getPower() + turnAngle);
-            tl_motor.setPower(tl_motor.getPower() - turnAngle);
-            bl_motor.setPower(bl_motor.getPower() - turnAngle);
+            tr_motor.setPower(tr_motor.getPower() - turnAngle);
+            br_motor.setPower(br_motor.getPower() - turnAngle);
+            tl_motor.setPower(tl_motor.getPower() + turnAngle);
+            bl_motor.setPower(bl_motor.getPower() + turnAngle);
 
 
 
             if(gamepad1.x) enableDpad = !enableDpad;
 
             if(enableDpad) {
+
+                //double dpadAngle =  angles.firstAngle;
+
                 while(gamepad1.dpad_up) {
                     tr_motor.setPower(1);
                     tl_motor.setPower(1);
@@ -319,8 +324,8 @@ public class MechanumTeleOp extends LinearOpMode {
 
             telemetry.addData("Turn Angle:", turnAngle);
             telemetry.addData("D-pad Enabled (gamepad1.x):", enableDpad);
-            telemetry.addData("Right Stick X: ", gamepad1.right_stick_x);
-            telemetry.addData("Right Stick Y: ", gamepad1.right_stick_y);
+            telemetry.addData("Right Stick X: ", xPos);
+            telemetry.addData("Right Stick Y: ", yPos);
             telemetry.update();
         }
 
