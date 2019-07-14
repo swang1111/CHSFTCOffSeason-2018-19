@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import com.qualcomm.robotcore.util.Range;
 
 @TeleOp (name = "Mechanum TeleOp Simple", group = "TeleOp") // go organize it
 //@Disabled
@@ -139,36 +140,48 @@ public class MechanumTeleOpSimple extends LinearOpMode {
 
             if(enableDpad) {
 
-                //double dpadAngle =  angles.firstAngle;
+                double dpadAngle = angles.firstAngle;
+                double error = 0;
 
-                while(gamepad1.dpad_up) {
-                    tr_motor.setPower(1);
-                    tl_motor.setPower(1);
-                    bl_motor.setPower(1);
-                    br_motor.setPower(1);
-                }
-                while(gamepad1.dpad_down) {
-                    tr_motor.setPower(-1);
-                    tl_motor.setPower(-1);
-                    bl_motor.setPower(-1);
-                    br_motor.setPower(-1);
-                }
-                while(gamepad1.dpad_right) {
-                    tr_motor.setPower(1);
-                    tl_motor.setPower(-1);
-                    bl_motor.setPower(1);
-                    br_motor.setPower(-1);
-                }
-                while(gamepad1.dpad_left) {
-                    tr_motor.setPower(-1);
-                    tl_motor.setPower(1);
-                    bl_motor.setPower(-1);
-                    br_motor.setPower(1);
+                while(gamepad1.dpad_up || gamepad1.dpad_left ||
+                        gamepad1.dpad_right || gamepad1.dpad_down) {
+
+                    error = (angles.firstAngle - dpadAngle) / 1.5;
+
+
+                    if (gamepad1.dpad_up) {
+
+                        tr_motor.setPower(Range.clip(1 - error, 1, -1));
+                        tl_motor.setPower(Range.clip(1 + error, 1, -1));
+                        bl_motor.setPower(Range.clip(1 + error, 1, -1));
+                        br_motor.setPower(Range.clip(1 - error, 1, -1));
+                    }
+                    if (gamepad1.dpad_down) {
+
+                        tr_motor.setPower(Range.clip(-1 - error, 1, -1));
+                        tl_motor.setPower(Range.clip(-1 + error, 1, -1));
+                        bl_motor.setPower(Range.clip(-1 + error, 1, -1));
+                        br_motor.setPower(Range.clip(-1 - error, 1, -1));
+                    }
+                    if (gamepad1.dpad_right) {
+
+                        tr_motor.setPower(Range.clip(1 + error, 1, -1));
+                        tl_motor.setPower(Range.clip(-1 - error, 1, -1));
+                        bl_motor.setPower(Range.clip(1 - error, 1, -1));
+                        br_motor.setPower(Range.clip(-1 + error, 1, -1));
+                    }
+                    if (gamepad1.dpad_left) {
+                        tr_motor.setPower(Range.clip(-1 + error, 1, -1));
+                        tl_motor.setPower(Range.clip(1 - error, 1, -1));
+                        bl_motor.setPower(Range.clip(-1 - error, 1, -1));
+                        br_motor.setPower(Range.clip(1 + error, 1, -1));
+                    }
                 }
                 tr_motor.setPower(0);
                 tl_motor.setPower(0);
                 bl_motor.setPower(0);
                 br_motor.setPower(0);
+
             }
 
 
