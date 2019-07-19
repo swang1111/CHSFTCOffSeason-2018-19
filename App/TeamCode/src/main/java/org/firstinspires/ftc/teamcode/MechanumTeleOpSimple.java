@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import com.qualcomm.robotcore.util.Range;
 
-@TeleOp (name = "Mechanum TeleOp Simple", group = "TeleOp") // go organize it
+@TeleOp (name = "Mechanum TeleOp Simple2", group = "TeleOp") // go organize it
 //@Disabled
 public class MechanumTeleOpSimple extends LinearOpMode {
 
@@ -65,6 +65,12 @@ public class MechanumTeleOpSimple extends LinearOpMode {
         waitForStart();
 
         while(opModeIsActive()) {
+//            while(gamepad1.a) {                       //test for straight drive
+//                tl_motor.setPower(1);
+//                tr_motor.setPower(0.8 + 0.2);
+//                bl_motor.setPower(1);
+//                br_motor.setPower(0.8 + 0.2);
+//            }
 
             if (gamepad1.y) robotPerspective = !robotPerspective;
 
@@ -103,36 +109,43 @@ public class MechanumTeleOpSimple extends LinearOpMode {
 
             }
             else {
-                enableDpad = false;
+                if((xPos != 0) || (yPos != 0) || (gamepad1.left_stick_x != 0) || (gamepad1.left_stick_y != 0)) {
 
-                adjustedAngle = gyroAngle + Math.toDegrees(Math.atan2(yPos, xPos));
-                while (adjustedAngle >= 360) {
-                    adjustedAngle -= 360;
-                }
-                while (adjustedAngle < 0) {
-                    adjustedAngle += 360;
-                }
-                adjustedAngle *= (2 * Math.PI/360);
+                    enableDpad = false;
 
-                largestPower = findLargest(
-                        scalar * (Math.sin(adjustedAngle) - Math.cos(adjustedAngle) + rot),
-                        scalar * (Math.sin(adjustedAngle) + Math.cos(adjustedAngle) - rot),
-                        scalar * (Math.sin(adjustedAngle) + Math.cos(adjustedAngle) + rot),
-                        scalar * (Math.sin(adjustedAngle) - Math.cos(adjustedAngle) - rot)
-                        );
+                    adjustedAngle = gyroAngle + Math.toDegrees(Math.atan2(yPos, xPos));
+                    while (adjustedAngle >= 360) {
+                        adjustedAngle -= 360;
+                    }
+                    while (adjustedAngle < 0) {
+                        adjustedAngle += 360;
+                    }
+                    adjustedAngle *= (2 * Math.PI / 360);
 
-                if(largestPower > 1 || largestPower < -1) {
-                    scalar = Math.hypot(yPos, xPos) / Math.abs(largestPower);
+                    largestPower = findLargest(
+                            scalar * (Math.sin(adjustedAngle) - Math.cos(adjustedAngle) + rot),
+                            scalar * (Math.sin(adjustedAngle) + Math.cos(adjustedAngle) - rot),
+                            scalar * (Math.sin(adjustedAngle) + Math.cos(adjustedAngle) + rot),
+                            scalar * (Math.sin(adjustedAngle) - Math.cos(adjustedAngle) - rot)
+                    );
+
+                    if (largestPower > 1 || largestPower < -1) {
+                        scalar = Math.hypot(yPos, xPos) / Math.abs(largestPower);
+                    } else {
+                        scalar = 1;
+                    }
+
+                    tl_motor.setPower(scalar * (Math.sin(adjustedAngle) - Math.cos(adjustedAngle) + rot));
+                    tr_motor.setPower(scalar * (Math.sin(adjustedAngle) + Math.cos(adjustedAngle) - rot));
+                    bl_motor.setPower(scalar * (Math.sin(adjustedAngle) + Math.cos(adjustedAngle) + rot));
+                    br_motor.setPower(scalar * (Math.sin(adjustedAngle) - Math.cos(adjustedAngle) - rot));
+
                 }else {
-                    scalar = 1;
+                    tl_motor.setPower(0);
+                    tr_motor.setPower(0);
+                    bl_motor.setPower(0);
+                    br_motor.setPower(0);
                 }
-
-                tl_motor.setPower(scalar * (Math.sin(adjustedAngle) - Math.cos(adjustedAngle) + rot));
-                tr_motor.setPower(scalar * (Math.sin(adjustedAngle) + Math.cos(adjustedAngle) - rot));
-                bl_motor.setPower(scalar * (Math.sin(adjustedAngle) + Math.cos(adjustedAngle) + rot));
-                br_motor.setPower(scalar * (Math.sin(adjustedAngle) - Math.cos(adjustedAngle) - rot));
-
-
             }
 
 
@@ -147,36 +160,52 @@ public class MechanumTeleOpSimple extends LinearOpMode {
                 while(gamepad1.dpad_up || gamepad1.dpad_left ||
                         gamepad1.dpad_right || gamepad1.dpad_down) {
 
-                    error = (angles.firstAngle - dpadAngle) / 1.5;
+                    angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
+                    double currentAngle = angles.firstAngle;
+                    error = ((currentAngle - dpadAngle) / 45) + 0.1;
+                    telemetry.addData("Current Angle:", currentAngle);
+
+                    idle();
 
                     if (gamepad1.dpad_up) {
 
-                        tr_motor.setPower(Range.clip(1 - error, 1, -1));
-                        tl_motor.setPower(Range.clip(1 + error, 1, -1));
-                        bl_motor.setPower(Range.clip(1 + error, 1, -1));
-                        br_motor.setPower(Range.clip(1 - error, 1, -1));
+                        tr_motor.setPower(Range.clip(1 - error, -1, 1));
+                        tl_motor.setPower(Range.clip(1 + error, -1, 1));
+                        bl_motor.setPower(Range.clip(1 + error, -1, 1));
+                        br_motor.setPower(Range.clip(1 - error, -1, 1));
                     }
                     if (gamepad1.dpad_down) {
 
-                        tr_motor.setPower(Range.clip(-1 - error, 1, -1));
-                        tl_motor.setPower(Range.clip(-1 + error, 1, -1));
-                        bl_motor.setPower(Range.clip(-1 + error, 1, -1));
-                        br_motor.setPower(Range.clip(-1 - error, 1, -1));
+                        tr_motor.setPower(Range.clip(-1 - error, -1, 1));
+                        tl_motor.setPower(Range.clip(-1 + error, -1, 1));
+                        bl_motor.setPower(Range.clip(-1 + error, -1, 1));
+                        br_motor.setPower(Range.clip(-1 - error, -1, 1));
                     }
                     if (gamepad1.dpad_right) {
 
-                        tr_motor.setPower(Range.clip(1 + error, 1, -1));
-                        tl_motor.setPower(Range.clip(-1 - error, 1, -1));
-                        bl_motor.setPower(Range.clip(1 - error, 1, -1));
-                        br_motor.setPower(Range.clip(-1 + error, 1, -1));
+                        tr_motor.setPower(Range.clip(1 + error, -1, 1));
+                        tl_motor.setPower(Range.clip(-1 - error, -1, 1));
+                        bl_motor.setPower(Range.clip(1 - error, -1, 1));
+                        br_motor.setPower(Range.clip(-1 + error, -1, 1));
                     }
                     if (gamepad1.dpad_left) {
-                        tr_motor.setPower(Range.clip(-1 + error, 1, -1));
-                        tl_motor.setPower(Range.clip(1 - error, 1, -1));
-                        bl_motor.setPower(Range.clip(-1 - error, 1, -1));
-                        br_motor.setPower(Range.clip(1 + error, 1, -1));
+                        tr_motor.setPower(Range.clip(-1 + error, -1, 1));
+                        tl_motor.setPower(Range.clip(1 - error, -1, 1));
+                        bl_motor.setPower(Range.clip(-1 - error, -1, 1));
+                        br_motor.setPower(Range.clip(1 + error, -1, 1));
                     }
+                    telemetry.addData("Speed tl", tl_motor.getPower());
+                    telemetry.addData("Speed tr", tr_motor.getPower());
+                    telemetry.addData("Speed bl", bl_motor.getPower());
+                    telemetry.addData("Speed br", br_motor.getPower());
+                    telemetry.addData("Gyro angle:", gyroAngle);
+                    telemetry.addData("Adjusted Angle:",adjustedAngle);
+                    telemetry.addData("Dpad (gamepad1.x)", enableDpad);
+                    telemetry.addData("Robot Perspective (gamepad1.y)", robotPerspective);
+                    telemetry.addData("Error: ", error);
+                    telemetry.addData("Dpad Angle: ", dpadAngle);
+                    telemetry.update();
                 }
                 tr_motor.setPower(0);
                 tl_motor.setPower(0);
@@ -193,6 +222,7 @@ public class MechanumTeleOpSimple extends LinearOpMode {
             telemetry.addData("Adjusted Angle:",adjustedAngle);
             telemetry.addData("Dpad (gamepad1.x)", enableDpad);
             telemetry.addData("Robot Perspective (gamepad1.y)", robotPerspective);
+            telemetry.update();
         }
 
     }
