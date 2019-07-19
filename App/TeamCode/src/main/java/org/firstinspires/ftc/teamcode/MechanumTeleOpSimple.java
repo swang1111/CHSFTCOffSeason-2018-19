@@ -103,6 +103,7 @@ public class MechanumTeleOpSimple extends LinearOpMode {
 
             }
             else {
+                enableDpad = false;
 
                 adjustedAngle = gyroAngle + Math.toDegrees(Math.atan2(yPos, xPos));
                 while (adjustedAngle >= 360) {
@@ -184,7 +185,14 @@ public class MechanumTeleOpSimple extends LinearOpMode {
 
             }
 
-
+            telemetry.addData("Speed tl", tl_motor.getPower());
+            telemetry.addData("Speed tr", tr_motor.getPower());
+            telemetry.addData("Speed bl", bl_motor.getPower());
+            telemetry.addData("Speed br", br_motor.getPower());
+            telemetry.addData("Gyro angle:", gyroAngle);
+            telemetry.addData("Adjusted Angle:",adjustedAngle);
+            telemetry.addData("Dpad (gamepad1.x)", enableDpad);
+            telemetry.addData("Robot Perspective (gamepad1.y)", robotPerspective);
         }
 
     }
