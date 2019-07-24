@@ -163,7 +163,7 @@ public class MechanumTeleOpSimple extends LinearOpMode {
                     angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
                     double currentAngle = angles.firstAngle;
-                    error = ((currentAngle - dpadAngle) / 45) + 0.1;
+                    error = ((currentAngle - dpadAngle) / 45) + 0.2;
                     telemetry.addData("Current Angle:", currentAngle);
 
                     idle();
@@ -174,13 +174,16 @@ public class MechanumTeleOpSimple extends LinearOpMode {
                         tl_motor.setPower(Range.clip(1 + error, -1, 1));
                         bl_motor.setPower(Range.clip(1 + error, -1, 1));
                         br_motor.setPower(Range.clip(1 - error, -1, 1));
+
                     }
+
                     if (gamepad1.dpad_down) {
 
                         tr_motor.setPower(Range.clip(-1 - error, -1, 1));
                         tl_motor.setPower(Range.clip(-1 + error, -1, 1));
                         bl_motor.setPower(Range.clip(-1 + error, -1, 1));
                         br_motor.setPower(Range.clip(-1 - error, -1, 1));
+
                     }
                     if (gamepad1.dpad_right) {
 
@@ -222,6 +225,10 @@ public class MechanumTeleOpSimple extends LinearOpMode {
             telemetry.addData("Adjusted Angle:",adjustedAngle);
             telemetry.addData("Dpad (gamepad1.x)", enableDpad);
             telemetry.addData("Robot Perspective (gamepad1.y)", robotPerspective);
+            telemetry.addData("Encoder tl", tl_motor.getCurrentPosition());
+            telemetry.addData("Encoder tr", tr_motor.getCurrentPosition());
+            telemetry.addData("Encoder bl", bl_motor.getCurrentPosition());
+            telemetry.addData("Encoder br", br_motor.getCurrentPosition());
             telemetry.update();
         }
 
