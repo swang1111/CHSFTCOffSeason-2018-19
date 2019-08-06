@@ -37,6 +37,8 @@ If you don't initially see why this is so, the y component on each of the wheels
 
 While the motorPower(s) may be set to a value greater than one, the motor cannot actually run at a higher speed. To fix this we need to scale the motorPower(s) such that they all are between -1 and 1.
 
+[Link to file containing the code below](https://github.com/swang1111/CHSFTCOffSeason-2018-19/blob/master/App/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/MecanumTeleOp.java)
+
 ```java
 
 package org.firstinspires.ftc.teamcode;
@@ -56,8 +58,6 @@ public class MecanumTeleOp extends LinearOpMode {
 
     public void runOpMode() {
 
-        //setting up the motors
-        
         tl_motor = hardwareMap.dcMotor.get("tl_motor");
         tr_motor = hardwareMap.dcMotor.get("tr_motor");
         bl_motor = hardwareMap.dcMotor.get("bl_motor");
@@ -65,9 +65,6 @@ public class MecanumTeleOp extends LinearOpMode {
 
         tr_motor.setDirection(DcMotorSimple.Direction.REVERSE);
         br_motor.setDirection(DcMotorSimple.Direction.REVERSE);
-        
-        //putting the motor in RUN_USING_ENCODER makes the setPower method sets a speed to the motor rather than a power
-        //this helps reduce fluctuations and inaccuracies
 
         tr_motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         tl_motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -82,15 +79,11 @@ public class MecanumTeleOp extends LinearOpMode {
 
         while(opModeIsActive()) {
 
-            //getting the x,y, and r values
-            //the joystick gamepad values are mapped backwards, so we correct by multiplying by -1 
             double xPos = -gamepad1.right_stick_x;
             double yPos = -gamepad1.right_stick_y;
             double rot = -gamepad1.left_stick_x;
             
-            //scalar = how far the joystick is from the center (√(x^2 + y^2))
             double scalar = Math.hypot(yPos, xPos);
-            //used to help with scaling
             double largestPower = 1;
                 
                 double tlPower = scalar * (xPos + yPos + rot);
@@ -98,17 +91,12 @@ public class MecanumTeleOp extends LinearOpMode {
                 double blPower = scalar * (xPos - yPos + rot);
                 double brPower = scalar * (xPos + yPos - rot);
                 
-                //create a method with all the motor powers 
-                //this method will be used in the findLargest method
                 double[] motorPower = {tlPower, trPower, blPower, brPower};
 
-                //find the largest motor power
                 largestPower = findLargest(motorPower);
-                
-                //sees if largestPower is greater than 1 
-                //Note: largestPower is always positive even though the motor powers may not be
-                if(largestPower > 1) {
-                    scalar /= largestPower;
+
+                if(largestPower > 1 || largestPower < -1) {
+                    scalar = Math.hypot(yPos, xPos) / Math.abs(largestPower);
                 }else {
                     scalar = 1;
                 }
@@ -126,14 +114,11 @@ public class MecanumTeleOp extends LinearOpMode {
             }
         }  
         
-        //finds the largest motor power
-        //return value largest is the absolute value of the largest motor power
-        //Largest motor power means the power that is the furthest from 0
         public double findLargest(double[] motorPower) {
-            double largest = Math.abs(motorPower[0]);
+            double largest = motorPower[0];
             for(double power : motorPower) {
-              if(Math.abs(power) > largest) {
-                  largest = Math.abs(power);
+              if(power > largest) {
+                  largest = power;
               }
             }
             return largest;
