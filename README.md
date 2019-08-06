@@ -48,7 +48,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@TeleOp (name = "Mecanum TeleOp", group = "TeleOp") 
+@TeleOp (name = "Mecanum TeleOp", group = "TeleOp")
 public class MecanumTeleOp extends LinearOpMode {
 
     private DcMotor tl_motor;
@@ -58,6 +58,8 @@ public class MecanumTeleOp extends LinearOpMode {
 
     public void runOpMode() {
 
+        //setting up the motors
+
         tl_motor = hardwareMap.dcMotor.get("tl_motor");
         tr_motor = hardwareMap.dcMotor.get("tr_motor");
         bl_motor = hardwareMap.dcMotor.get("bl_motor");
@@ -65,6 +67,9 @@ public class MecanumTeleOp extends LinearOpMode {
 
         tr_motor.setDirection(DcMotorSimple.Direction.REVERSE);
         br_motor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        //putting the motor in RUN_USING_ENCODER makes the setPower method sets a speed to the motor rather than a power
+        //this helps reduce fluctuations and inaccuracies
 
         tr_motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         tl_motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -79,50 +84,62 @@ public class MecanumTeleOp extends LinearOpMode {
 
         while(opModeIsActive()) {
 
+            //getting the x,y, and r values
+            //the joystick gamepad values are mapped backwards, so we correct by multiplying by -1
             double xPos = -gamepad1.right_stick_x;
             double yPos = -gamepad1.right_stick_y;
             double rot = -gamepad1.left_stick_x;
-            
+
+            //scalar = how far the joystick is from the center (√(x^2 + y^2))
             double scalar = Math.hypot(yPos, xPos);
+            //used to help with scaling
             double largestPower = 1;
-                
-                double tlPower = scalar * (xPos + yPos + rot);
-                double trPower = scalar * (xPos - yPos - rot);
-                double blPower = scalar * (xPos - yPos + rot);
-                double brPower = scalar * (xPos + yPos - rot);
-                
-                double[] motorPower = {tlPower, trPower, blPower, brPower};
 
-                largestPower = findLargest(motorPower);
+            double tlPower = scalar * (xPos + yPos + rot);
+            double trPower = scalar * (xPos - yPos - rot);
+            double blPower = scalar * (xPos - yPos + rot);
+            double brPower = scalar * (xPos + yPos - rot);
 
-                if(largestPower > 1 || largestPower < -1) {
-                    scalar = Math.hypot(yPos, xPos) / Math.abs(largestPower);
-                }else {
-                    scalar = 1;
-                }
-                
-                tlPower = scalar * (xPos + yPos + rot);
-                trPower = scalar * (xPos - yPos - rot);
-                blPower = scalar * (xPos - yPos + rot);
-                brPower = scalar * (xPos + yPos - rot);
+            //create a method with all the motor powers
+            //this method will be used in the findLargest method
+            double[] motorPower = {tlPower, trPower, blPower, brPower};
 
-                tl_motor.setPower(tlPower);
-                tr_motor.setPower(trPower);
-                bl_motor.setPower(blPower);
-                br_motor.setPower(brPower);
+            //find the largest motor power
+            largestPower = findLargest(motorPower);
 
+            //sees if largestPower is greater than 1
+            //Note: largestPower is always positive even though the motor powers may not be
+            if(largestPower > 1) {
+                scalar /= largestPower;
+            }else {
+                scalar = 1;
             }
-        }  
-        
-        public double findLargest(double[] motorPower) {
-            double largest = motorPower[0];
-            for(double power : motorPower) {
-              if(power > largest) {
-                  largest = power;
-              }
-            }
-            return largest;
+
+            tlPower = scalar * (xPos + yPos + rot);
+            trPower = scalar * (xPos - yPos - rot);
+            blPower = scalar * (xPos - yPos + rot);
+            brPower = scalar * (xPos + yPos - rot);
+
+            tl_motor.setPower(tlPower);
+            tr_motor.setPower(trPower);
+            bl_motor.setPower(blPower);
+            br_motor.setPower(brPower);
+
         }
- }
+    }
+
+    //finds the largest motor power
+    //return value largest is the absolute value of the largest motor power
+    //Largest motor power means the power that is the furthest from 0
+    public double findLargest(double[] motorPower) {
+        double largest = Math.abs(motorPower[0]);
+        for(double power : motorPower) {
+            if(Math.abs(power) > largest) {
+                largest = Math.abs(power);
+            }
+        }
+        return largest;
+    }
+}
             
 ```
