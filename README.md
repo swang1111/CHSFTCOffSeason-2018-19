@@ -4,7 +4,7 @@ Mecanum wheels use rollers to apply force and movement at a 45 ̊ angle, allowin
 
 Here is a diagram of the directional forces of the wheels:
 
-![Screen Shot 2019-08-05 at 7 29 37 PM](https://user-images.githubusercontent.com/43021436/62506989-9187b900-b7b7-11e9-8a4d-52d96275aae9.png)
+![Screen Shot 2019-08-05 at 8 58 01 PM](https://user-images.githubusercontent.com/43021436/62510415-c863cc00-b7c3-11e9-8c21-48794037d7e9.png)
 
   To move forward, you need to power the wheels forward. This causes the left and right forces to be equal and thus cancel. To move right, the top-left and bottom-right need to be powered forward, and the top-right and bottom-left to be powered backward. This causes the forward and backward forces to cancel, leaving only a rightward force (making the robot move to the right). To turn to the right, the left motors need to be powered forward, while the right motors need to be powered backward. We can create a table like the one below:
 
