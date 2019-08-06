@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @TeleOp (name = "Mechanum TeleOp", group = "TeleOp") // go organize it
 //@Disabled
-public class MechanumTeleOp extends LinearOpMode {
+public class MechanumTeleOp_v1 extends LinearOpMode {
 
     BNO055IMU imu;
 
