@@ -84,7 +84,7 @@ public class MecanumTeleOp extends LinearOpMode {
 
         while(opModeIsActive()) {
 
-            //getting the x,y, and r values
+            //getting the x, y, and r values
             //the joystick gamepad values are mapped backwards, so we correct by multiplying by -1
             double xPos = -gamepad1.right_stick_x;
             double yPos = -gamepad1.right_stick_y;
