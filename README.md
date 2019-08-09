@@ -27,8 +27,8 @@ Using this, we can create an algorithm to set the motor powers.
 ```
 
 tlPower = x + y + r
-trPower = x - y - r
-blPower = x - y + r
+trPower = -x + y - r
+blPower = -x + y + r
 brPower = x + y - r
 
 ```
