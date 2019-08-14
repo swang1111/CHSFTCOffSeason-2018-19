@@ -52,8 +52,7 @@ import java.util.Locale;
 
 @TeleOp(name = "Testing Gyros222", group = "Sensor")
 //@Disabled                            // Comment this out to add to the opmode list
-public class Gyro_Testing222 extends LinearOpMode
-{
+public class StraightDrive extends LinearOpMode {
 
     BNO055IMU imu;
 
@@ -66,6 +65,11 @@ public class Gyro_Testing222 extends LinearOpMode
     // State used for updating telemetry
     Orientation angles;
     Acceleration gravity;
+
+    private static final double COUNTS_PER_MOTOR_REV = 512;
+    private static final double GEAR_RATIO = 1;
+    private static final double WHEEL_DIAMETER_INCHES = 4;
+    private static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV) / (WHEEL_DIAMETER_INCHES * Math.PI * GEAR_RATIO);
 
 
     @Override public void runOpMode() {
@@ -87,6 +91,8 @@ public class Gyro_Testing222 extends LinearOpMode
         leftMotor = hardwareMap.dcMotor.get("left_motor");
         rightMotor = hardwareMap.dcMotor.get("right_motor");
 
+
+
         waitForStart();
 
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -94,7 +100,7 @@ public class Gyro_Testing222 extends LinearOpMode
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        gyroTurn(0.2, -90);
+        straightDrive(20);
 
         //angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
@@ -109,7 +115,34 @@ public class Gyro_Testing222 extends LinearOpMode
         }
 
     }
+    public void straightDrive(double inches,   double speed, double angle) {
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
+        double initialPosition = angles.firstAngle;
+
+        double leftEncoderPos = leftMotor.getCurrentPosition();
+        double rightEncoderPos = rightMotor.getCurrentPosition();
+        double leftNewPos = leftEncoderPos + inches * COUNTS_PER_INCH;
+        double rightNewPos = rightEncoderPos + inches * COUNTS_PER_INCH;
+
+        boolean atTarget = false;
+
+        if((leftEncoderPos < leftNewPos) && leftMotor.getCurrentPosition() > leftNewPos) {
+            atTarget = true;
+        }
+        else if ((leftEncoderPos > leftNewPos) && leftMotor.getCurrentPosition() < leftNewPos) {
+            atTarget = true;
+        }
+
+        while (opModeIsActive() && !onHeading(speed, angle, P_TURN_COEFF, initialPosition) && !atTarget) {
+            // Update telemetry & Allow time for other processes to run.
+            telemetry.update();
+        }
+
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+
+    }
 
     public void gyroTurn (  double speed, double angle) {
 
